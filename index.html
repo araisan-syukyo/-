@@ -2,6 +2,9 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
+  <!-- スマホ・タブレット表示最適化 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>日本は世界の縮図？</title>
 
   <!-- LeafletのCSS（CDN） -->
@@ -11,42 +14,46 @@
   />
 
   <style>
-    /* 全画面表示＆グラデーション背景 */
+    /* ページ全体の初期設定 */
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
       font-family: "Hiragino Sans", "Helvetica Neue", Arial, sans-serif;
-      background: linear-gradient(160deg, #ffffff 0%, #d6f3fa 100%);
+      color: #444;
+      background: linear-gradient(160deg, #edf7fa 0%, #bee8fa 100%); 
+      /* 淡い水色～薄い青系に変更 */
     }
 
     /* タイトルヘッダー */
     header {
-      position: absolute;
+      position: fixed; 
       top: 0;
       width: 100%;
       text-align: center;
-      padding: 0.8rem 1rem;
-      background: rgba(255, 255, 255, 0.9);
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.95);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
       z-index: 999;
       transition: all 0.3s ease;
     }
     header h1 {
       margin: 0;
-      font-size: 1.7rem;
-      color: #444;
+      font-size: 1.8rem;
       font-weight: 700;
       letter-spacing: 0.05rem;
+      color: #333;
     }
 
     /* 地図本体 */
     #map {
       width: 100%;
-      height: 100%;
+      height: calc(100% - 70px); /* ヘッダー分だけ差し引き */
+      margin-top: 70px; /* ヘッダーがfixedなのでマップを下げる */
     }
+
     .leaflet-control-container .leaflet-top.leaflet-left {
-      margin-top: 80px; /* ヘッダー分だけマージン */
+      margin-top: 80px; /* ヘッダーと重ならないよう少し余裕を */
       margin-left: 10px;
     }
 
@@ -54,20 +61,20 @@
     .leaflet-popup-content button {
       display: inline-block;
       margin-top: 0.5rem;
-      padding: 0.4rem 0.8rem;
+      padding: 0.5rem 1rem;
       border: none;
       border-radius: 4px;
-      background-color: #66c7f4;
+      background-color: #67c0f5;
       color: #fff;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
     .leaflet-popup-content button:hover {
-      background-color: #44b2ea;
+      background-color: #42b0ec;
     }
 
-    /* 点滅アニメーション */
+    /* マーカー点滅アニメーション */
     @keyframes markerBlink {
       0%   { transform: scale(1);   filter: brightness(1); }
       50%  { transform: scale(1.3); filter: brightness(2); }
@@ -75,6 +82,21 @@
     }
     .leaflet-marker-pane .blink-marker {
       animation: markerBlink 1s ease-in-out infinite;
+    }
+
+    /* スマホ表示時に文字やボタンをややコンパクトに */
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 1.4rem;
+      }
+      #map {
+        height: calc(100% - 60px);
+        margin-top: 60px;
+      }
+      .leaflet-popup-content button {
+        font-size: 0.85rem;
+        padding: 0.45rem 0.8rem;
+      }
     }
   </style>
 </head>
@@ -91,11 +113,10 @@
 <script>
   // =============================
   // 1. 地図の初期化
-  //    ズームを5で日本をやや拡大表示
+  //    ズームを5にして日本をやや広域表示
   // =============================
   const map = L.map("map").setView([36, 138], 5);
 
-  // ---- 前の地図(OpenStreetMapタイル)に戻す
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors"
   }).addTo(map);
