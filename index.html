@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>日本は世界の縮図？</title>
+
+  <!-- LeafletのCSS（CDN） -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
+
+  <style>
+    /* 全画面表示＆グラデーション背景 */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: "Hiragino Sans", "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(160deg, #ffffff 0%, #d6f3fa 100%);
+    }
+
+    /* タイトルヘッダー */
+    header {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      text-align: center;
+      padding: 0.8rem 1rem;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      z-index: 999;
+      transition: all 0.3s ease;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.7rem;
+      color: #444;
+      font-weight: 700;
+      letter-spacing: 0.05rem;
+    }
+
+    /* 地図本体 */
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+    .leaflet-control-container .leaflet-top.leaflet-left {
+      margin-top: 80px; /* ヘッダー分だけマージン */
+      margin-left: 10px;
+    }
+
+    /* ポップアップ内のボタン */
+    .leaflet-popup-content button {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      border: none;
+      border-radius: 4px;
+      background-color: #66c7f4;
+      color: #fff;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .leaflet-popup-content button:hover {
+      background-color: #44b2ea;
+    }
+
+    /* 点滅アニメーション */
+    @keyframes markerBlink {
+      0%   { transform: scale(1);   filter: brightness(1); }
+      50%  { transform: scale(1.3); filter: brightness(2); }
+      100% { transform: scale(1);   filter: brightness(1); }
+    }
+    .leaflet-marker-pane .blink-marker {
+      animation: markerBlink 1s ease-in-out infinite;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>日本は世界の縮図？</h1>
+</header>
+
+<div id="map"></div>
+
+<!-- LeafletのJS（CDN） -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  // =============================
+  // 1. 地図の初期化
+  //    ズームを4で日本をやや拡大表示
+  // =============================
+  const map = L.map("map").setView([36, 138], );
+
+  // ---- 前の地図(OpenStreetMapタイル)に戻す
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(map);
+
+  // =============================
+  // 2. 日本⇔世界の対応データ
+  //    「屈斜路湖」「摩周湖」「洞爺湖」は削除済み
+  //    座標をより正確に微調整
+  // =============================
+  const pairs = [
+    // --- 大陸・地方 ---
+    {
+      nameJP: "北海道",
+      // 参考: 北海道のほぼ中心付近（幌加内町付近）
+      latJP:  43.4000, lngJP: 142.0000,
+      wikiJP: "https://ja.wikipedia.org/wiki/北海道",
+      nameW:  "アメリカ大陸",
+      latW:   40.0, lngW: -100.0, 
+      wikiW:  "https://ja.wikipedia.org/wiki/アメリカ大陸",
+      zoomJP: 7, zoomW: 5
+    },
+    {
+      nameJP: "東北地方",
+      // 青森〜福島あたりの中心をざっくり
+      latJP:  39.5000, lngJP: 140.9000,
+      wikiJP: "https://ja.wikipedia.org/wiki/東北地方",
+      nameW:  "南米大陸",
+      latW:   -15.0, lngW: -60.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/南アメリカ",
+      zoomJP: 7, zoomW: 5
+    },
+    {
+      nameJP: "本州",
+      // 本州の地理的中心は岐阜県付近という説があるが、ざっくりこのあたり
+      latJP:  35.3000, lngJP: 136.9000,
+      wikiJP: "https://ja.wikipedia.org/wiki/本州",
+      nameW:  "ユーラシア大陸",
+      latW:   50.0, lngW: 60.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/ユーラシア大陸",
+      zoomJP: 7, zoomW: 5
+    },
+    {
+      nameJP: "四国",
+      // 四国中央部あたり
+      latJP:  33.7500, lngJP: 133.5000,
+      wikiJP: "https://ja.wikipedia.org/wiki/四国",
+      nameW:  "オーストラリア大陸",
+      latW:   -25.0, lngW: 135.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/オーストラリア_(大陸)",
+      zoomJP: 7, zoomW: 6
+    },
+    {
+      nameJP: "九州",
+      // 熊本付近を中心とみなす
+      latJP:  32.8000, lngJP: 130.7000,
+      wikiJP: "https://ja.wikipedia.org/wiki/九州",
+      nameW:  "アフリカ大陸",
+      latW:   5.0, lngW: 20.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/アフリカ",
+      zoomJP: 7, zoomW: 5
+    },
+
+    // --- 山・山脈 ---
+    {
+      nameJP: "日本アルプス",
+      // 飛騨山脈・木曽山脈・赤石山脈が重なり合うあたり
+      latJP:  36.2000, lngJP: 137.6000,
+      wikiJP: "https://ja.wikipedia.org/wiki/日本アルプス",
+      nameW:  "ヒマラヤ山脈",
+      latW:   27.9881, lngW: 86.9250,
+      wikiW:  "https://ja.wikipedia.org/wiki/ヒマラヤ山脈",
+      zoomJP: 8, zoomW: 7
+    },
+    {
+      nameJP: "富士山",
+      // 富士山山頂付近
+      latJP:  35.3606, lngJP: 138.7274,
+      wikiJP: "https://ja.wikipedia.org/wiki/富士山",
+      nameW:  "エベレスト",
+      latW:   27.9881, lngW: 86.9250,
+      wikiW:  "https://ja.wikipedia.org/wiki/エベレスト",
+      zoomJP: 9, zoomW: 8
+    },
+
+    // --- 湖・海 ---
+    {
+      nameJP: "琵琶湖",
+      // 大津市と彦根市のほぼ間くらい
+      latJP:  35.2500, lngJP: 136.1600,
+      wikiJP: "https://ja.wikipedia.org/wiki/琵琶湖",
+      nameW:  "カスピ海",
+      latW:   42.0, lngW: 50.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/カスピ海",
+      zoomJP: 8, zoomW: 6
+    },
+    {
+      nameJP: "猪苗代湖",
+      // 湖中央付近
+      latJP:  37.5167, lngJP: 140.1167,
+      wikiJP: "https://ja.wikipedia.org/wiki/猪苗代湖",
+      nameW:  "バイカル湖",
+      latW:   53.5, lngW: 108.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/バイカル湖",
+      zoomJP: 8, zoomW: 6
+    },
+    {
+      nameJP: "瀬戸内海",
+      // 兵庫・岡山・香川らへんの中間あたり
+      latJP:  34.2500, lngJP: 133.2000,
+      wikiJP: "https://ja.wikipedia.org/wiki/瀬戸内海",
+      nameW:  "地中海",
+      latW:   35.0, lngW: 20.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/地中海",
+      zoomJP: 7, zoomW: 6
+    },
+    {
+      nameJP: "田沢湖",
+      // 湖中央付近
+      latJP:  39.7000, lngJP: 140.7000,
+      wikiJP: "https://ja.wikipedia.org/wiki/田沢湖",
+      nameW:  "メキシコ湾",
+      latW:   27.0, lngW: -90.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/メキシコ湾",
+      zoomJP: 9, zoomW: 4
+    },
+
+    // --- 半島 ---
+    {
+      nameJP: "下北半島",
+      // むつ市付近
+      latJP:  41.2880, lngJP: 141.2280,
+      wikiJP: "https://ja.wikipedia.org/wiki/下北半島",
+      nameW:  "カムチャッカ半島",
+      latW:   56.0, lngW: 160.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/カムチャツカ半島",
+      zoomJP: 8, zoomW: 6
+    },
+    {
+      nameJP: "能登半島",
+      // 輪島市〜珠洲市あたりの中間
+      latJP:  37.4500, lngJP: 137.2000,
+      wikiJP: "https://ja.wikipedia.org/wiki/能登半島",
+      nameW:  "スカンディナヴィア半島",
+      latW:   62.0, lngW: 15.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/スカンディナヴィア",
+      zoomJP: 8, zoomW: 6
+    },
+    {
+      nameJP: "紀伊半島",
+      // 奈良・三重・和歌山の境界あたり
+      latJP:  34.2200, lngJP: 135.7000,
+      wikiJP: "https://ja.wikipedia.org/wiki/紀伊半島",
+      nameW:  "アラビア半島",
+      latW:   20.0, lngW: 45.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/アラビア半島",
+      zoomJP: 8, zoomW: 6
+    },
+    {
+      nameJP: "山口県(西部)",
+      // 下関市付近
+      latJP:  34.0000, lngJP: 130.9500,
+      wikiJP: "https://ja.wikipedia.org/wiki/山口県",
+      nameW:  "イベリア半島",
+      latW:   40.0, lngW: -4.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/イベリア半島",
+      zoomJP: 8, zoomW: 6
+    },
+    {
+      nameJP: "伊豆半島",
+      // 伊豆半島中部あたり
+      latJP:  34.9000, lngJP: 138.9300,
+      wikiJP: "https://ja.wikipedia.org/wiki/伊豆半島",
+      nameW:  "インド",
+      latW:   22.0, lngW: 80.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/インド",
+      zoomJP: 8, zoomW: 6
+    },
+    {
+      nameJP: "房総半島",
+      // 君津市あたり
+      latJP:  35.2000, lngJP: 140.1000,
+      wikiJP: "https://ja.wikipedia.org/wiki/房総半島",
+      nameW:  "インドシナ半島",
+      latW:   15.0, lngW: 105.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/インドシナ",
+      zoomJP: 8, zoomW: 6
+    },
+    {
+      nameJP: "牡鹿半島",
+      // 女川町〜牡鹿半島付近
+      latJP:  38.3000, lngJP: 141.5000,
+      wikiJP: "https://ja.wikipedia.org/wiki/牡鹿半島",
+      nameW:  "朝鮮半島",
+      latW:   39.0, lngW: 127.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/朝鮮半島",
+      zoomJP: 8, zoomW: 6
+    },
+    {
+      nameJP: "佐渡島",
+      // 佐渡のやや中央寄り
+      latJP:  38.0000, lngJP: 138.4000,
+      wikiJP: "https://ja.wikipedia.org/wiki/佐渡島",
+      nameW:  "ノヴァヤゼムリャ島",
+      latW:   74.0, lngW: 57.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/ノヴァヤゼムリャ",
+      zoomJP: 8, zoomW: 6
+    }
+  ];
+
+  // --- マーカー配列 ---
+  const jpMarkers = [];
+  const wMarkers = [];
+  // --- 世界側マーカーのDOM要素 (点滅用)
+  const wMarkerElems = {};
+
+  // =============================
+  // 3. マーカー生成 & ポップアップ
+  // =============================
+  pairs.forEach((pair, index) => {
+    // === 日本側マーカー ===
+    const jpMarker = L.marker([pair.latJP, pair.lngJP]).addTo(map);
+    jpMarker.bindPopup(`
+      <div style="text-align:center;">
+        <h3>${pair.nameJP} => ${pair.nameW}</h3>
+        <p>
+          <a href="${pair.wikiJP}" target="_blank">${pair.nameJP}のWikipedia</a> /
+          <a href="${pair.wikiW}"  target="_blank">${pair.nameW}のWikipedia</a>
+        </p>
+        <button onclick="moveToWorld(${index})">対応先へ移動</button>
+      </div>
+    `);
+    jpMarkers.push(jpMarker);
+
+    // === 世界側マーカー ===
+    const wMarker = L.marker([pair.latW, pair.lngW]).addTo(map);
+    wMarker.bindPopup(`
+      <div style="text-align:center;">
+        <h3>${pair.nameW} => ${pair.nameJP}</h3>
+        <p>
+          <a href="${pair.wikiW}"  target="_blank">${pair.nameW}のWikipedia</a> /
+          <a href="${pair.wikiJP}" target="_blank">${pair.nameJP}のWikipedia</a>
+        </p>
+        <button onclick="moveToJapan(${index})">日本に戻る</button>
+      </div>
+    `);
+    wMarkers.push(wMarker);
+
+    // DOM要素を取得（点滅アニメ用）
+    wMarker.on('add', () => {
+      const el = wMarker.getElement();
+      wMarkerElems[index] = el;
+    });
+  });
+
+  // =============================
+  // 4. 地図移動 & 点滅制御
+  // =============================
+  function moveToWorld(index) {
+    const p = pairs[index];
+    map.flyTo([p.latW, p.lngW], p.zoomW);
+    // 少し待ってからポップアップ＆点滅
+    setTimeout(() => {
+      wMarkers[index].openPopup();
+      blinkWorldMarker(index);
+    }, 1000);
+  }
+
+  function moveToJapan(index) {
+    const p = pairs[index];
+    map.flyTo([p.latJP, p.lngJP], p.zoomJP);
+    // 少し待ってから日本マーカーのポップアップ＆点滅解除
+    setTimeout(() => {
+      jpMarkers[index].openPopup();
+      removeAllBlinks();
+    }, 1000);
+  }
+
+  function blinkWorldMarker(index) {
+    removeAllBlinks();
+    const el = wMarkerElems[index];
+    if (!el) return;
+    el.classList.add('blink-marker');
+    // 3秒後に点滅解除
+    setTimeout(() => {
+      el.classList.remove('blink-marker');
+    }, 3000);
+  }
+
+  function removeAllBlinks() {
+    Object.values(wMarkerElems).forEach(el => {
+      el.classList.remove('blink-marker');
+    });
+  }
+</script>
+</body>
+</html>
