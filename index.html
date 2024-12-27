@@ -43,8 +43,9 @@
       letter-spacing: 0.05rem;
       color: #333;
     }
-    /* 自動ツアーボタン */
-    .auto-tour-btn {
+
+    /* ボタン共通 */
+    .tour-btn {
       margin-right: 1rem;
       padding: 0.5rem 1rem;
       font-size: 0.9rem;
@@ -55,7 +56,7 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-    .auto-tour-btn:hover {
+    .tour-btn:hover {
       background-color: #42b0ec;
     }
 
@@ -109,7 +110,7 @@
         height: calc(100% - 60px);
         margin-top: 60px;
       }
-      .auto-tour-btn {
+      .tour-btn {
         font-size: 0.8rem;
         padding: 0.45rem 0.8rem;
       }
@@ -124,7 +125,16 @@
 <body>
 <header>
   <h1>日本は世界の縮図？</h1>
-  <button class="auto-tour-btn" onclick="autoTour()">自動ツアー</button>
+  <div>
+    <!-- 自動ツアー開始ボタン(初期表示: inline-block) -->
+    <button id="auto-tour-btn" class="tour-btn" onclick="startAutoTour()">
+      自動ツアー
+    </button>
+    <!-- 停止ボタン(初期表示: none) -->
+    <button id="stop-btn" class="tour-btn" style="display:none;" onclick="stopAutoTour()">
+      停止
+    </button>
+  </div>
 </header>
 
 <div id="map"></div>
@@ -133,12 +143,10 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
   // =============================
-  // 1. 地図の初期化
-  //    ズームを5にして日本をやや拡大表示
+  // 1. 地図の初期化 (ズーム:5)
   // =============================
   const map = L.map("map").setView([36, 138], 5);
 
-  // OpenStreetMapタイル
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors"
   }).addTo(map);
@@ -327,10 +335,10 @@
     }
   ];
 
-  // マーカー配列
+  // --- マーカー配列 ---
   const jpMarkers = [];
   const wMarkers = [];
-  // 世界側マーカーのDOM要素 (点滅用)
+  // --- 世界側マーカーのDOM要素 (点滅用)
   const wMarkerElems = {};
 
   // =============================
@@ -410,22 +418,57 @@
   }
 
   // =============================
-  // 5. 自動ツアー機能
-  //    日本⇒世界⇒日本⇒次のペア … を繰り返し往復
+  // 5. 自動ツアー機能 (3秒おき) & 停止機能
   // =============================
-  let autoTourTimer = null; // タイマー管理用
-  function autoTour(index = 0, goingToWorld = true) {
-    if (index >= pairs.length) index = 0;
+  let autoTourTimer = null; 
+  let autoTourIndex = 0;    
+  let goingToWorld = true;  
+
+  function startAutoTour() {
+    // 既に動いていたら停止
+    stopAutoTour();
+
+    // ボタン切り替え: 自動ツアー -> 停止
+    document.getElementById("auto-tour-btn").style.display = "none";
+    document.getElementById("stop-btn").style.display = "inline-block";
+
+    autoTourIndex = 0;
+    goingToWorld = true;
+    autoTourNext();
+  }
+
+  function autoTourNext() {
+    if (autoTourIndex >= pairs.length) {
+      autoTourIndex = 0;
+    }
 
     if (goingToWorld) {
-      moveToWorld(index);
-      // 3秒後に 日本へ戻る
-      autoTourTimer = setTimeout(() => autoTour(index, false), 5000);
+      moveToWorld(autoTourIndex);
+      // 3秒後に 日本へ
+      autoTourTimer = setTimeout(() => {
+        goingToWorld = false;
+        autoTourNext();
+      }, 3000);
     } else {
-      moveToJapan(index);
-      // 3秒後に 次のペアへ
-      autoTourTimer = setTimeout(() => autoTour(index + 1, true), 5000);
+      moveToJapan(autoTourIndex);
+      // 3秒後に 次のペア
+      autoTourTimer = setTimeout(() => {
+        goingToWorld = true;
+        autoTourIndex++;
+        autoTourNext();
+      }, 3000);
     }
+  }
+
+  function stopAutoTour() {
+    // タイマー停止
+    if (autoTourTimer) {
+      clearTimeout(autoTourTimer);
+      autoTourTimer = null;
+    }
+    // ボタン切り替え: 停止 -> 自動ツアー
+    document.getElementById("stop-btn").style.display = "none";
+    document.getElementById("auto-tour-btn").style.display = "inline-block";
   }
 </script>
 </body>
