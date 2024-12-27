@@ -418,7 +418,7 @@
   }
 
   // =============================
-  // 5. 自動ツアー機能 (3秒おき) & 停止機能
+  // 5. 自動ツアー機能 (4秒おき) & 停止機能
   // =============================
   let autoTourTimer = null; 
   let autoTourIndex = 0;    
@@ -444,19 +444,19 @@
 
     if (goingToWorld) {
       moveToWorld(autoTourIndex);
-      // 3秒後に 日本へ
+      // 4秒後に 日本へ
       autoTourTimer = setTimeout(() => {
         goingToWorld = false;
         autoTourNext();
-      }, 3000);
+      }, 4000);
     } else {
       moveToJapan(autoTourIndex);
-      // 3秒後に 次のペア
+      // 4秒後に 次のペア
       autoTourTimer = setTimeout(() => {
         goingToWorld = true;
         autoTourIndex++;
         autoTourNext();
-      }, 3000);
+      }, 4000);
     }
   }
 
