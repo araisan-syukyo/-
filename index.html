@@ -1,50 +1,40 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
+  <title>日本は世界の縮図？ - 修正版</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>日本は世界の縮図？</title>
 
   <!-- LeafletのCSS（CDN） -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet/dist/leaflet.css"
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
   <style>
-    /* ページ全体 */
     html, body {
-      margin: 0;
-      padding: 0;
+      margin: 0; 
+      padding: 0; 
       height: 100%;
       font-family: "Hiragino Sans", "Helvetica Neue", Arial, sans-serif;
-      color: #444;
       background: linear-gradient(160deg, #edf7fa 0%, #bee8fa 100%);
+      color: #444;
     }
-
-    /* タイトルヘッダー */
     header {
       position: fixed;
       top: 0;
       width: 100%;
-      text-align: center;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-      z-index: 999;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      z-index: 999;
     }
     header h1 {
       margin: 0;
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: 700;
-      letter-spacing: 0.05rem;
       color: #333;
     }
-
-    /* ボタン共通 */
     .tour-btn {
       margin-right: 1rem;
       padding: 0.5rem 1rem;
@@ -59,36 +49,11 @@
     .tour-btn:hover {
       background-color: #42b0ec;
     }
-
-    /* 地図本体 */
     #map {
       width: 100%;
-      height: calc(100% - 70px); /* ヘッダー分だけ差し引き */
+      height: calc(100% - 70px);
       margin-top: 70px;
     }
-    .leaflet-control-container .leaflet-top.leaflet-left {
-      margin-top: 80px; 
-      margin-left: 10px;
-    }
-
-    /* ポップアップ内のボタン */
-    .leaflet-popup-content button {
-      display: inline-block;
-      margin-top: 0.5rem;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 4px;
-      background-color: #67c0f5;
-      color: #fff;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    .leaflet-popup-content button:hover {
-      background-color: #42b0ec;
-    }
-
-    /* 点滅アニメーション */
     @keyframes markerBlink {
       0%   { transform: scale(1);   filter: brightness(1); }
       50%  { transform: scale(1.3); filter: brightness(2); }
@@ -97,28 +62,6 @@
     .leaflet-marker-pane .blink-marker {
       animation: markerBlink 1s ease-in-out infinite;
     }
-
-    /* スマホ向け調整 */
-    @media (max-width: 480px) {
-      header {
-        padding: 0.6rem;
-      }
-      header h1 {
-        font-size: 1.4rem;
-      }
-      #map {
-        height: calc(100% - 60px);
-        margin-top: 60px;
-      }
-      .tour-btn {
-        font-size: 0.8rem;
-        padding: 0.45rem 0.8rem;
-      }
-      .leaflet-popup-content button {
-        font-size: 0.85rem;
-        padding: 0.45rem 0.8rem;
-      }
-    }
   </style>
 </head>
 
@@ -126,14 +69,8 @@
 <header>
   <h1>日本は世界の縮図？</h1>
   <div>
-    <!-- 自動ツアー開始ボタン(初期表示: inline-block) -->
-    <button id="auto-tour-btn" class="tour-btn" onclick="startAutoTour()">
-      自動ツアー
-    </button>
-    <!-- 停止ボタン(初期表示: none) -->
-    <button id="stop-btn" class="tour-btn" style="display:none;" onclick="stopAutoTour()">
-      停止
-    </button>
+    <button id="auto-tour-btn" class="tour-btn" onclick="startAutoTour()">自動ツアー</button>
+    <button id="stop-btn" class="tour-btn" style="display:none;" onclick="stopAutoTour()">停止</button>
   </div>
 </header>
 
@@ -143,40 +80,32 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
   // =============================
-  // 1. 地図の初期化 (ズーム:5)
+  // 1. 地図初期化 (日本付近, ズーム5)
   // =============================
   const map = L.map("map").setView([36, 138], 5);
-
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors"
   }).addTo(map);
 
   // =============================
   // 2. 日本⇔世界の対応データ
+  //    バルカン湖ペアを削除
+  //    諏訪湖(アラル海), 種子島(マダガスカル島) 追加
   // =============================
   const pairs = [
     // --- 大陸・地方 ---
     {
-      nameJP: "北海道",
-      latJP:  43.4000, lngJP: 142.0000,
+      nameJP: "北海道(北米)",
+      latJP:  43.4, lngJP: 142.0,
       wikiJP: "https://ja.wikipedia.org/wiki/北海道",
-      nameW:  "アメリカ大陸",
+      nameW:  "北アメリカ",
       latW:   40.0, lngW: -100.0,
-      wikiW:  "https://ja.wikipedia.org/wiki/アメリカ大陸",
+      wikiW:  "https://ja.wikipedia.org/wiki/北アメリカ",
       zoomJP: 7, zoomW: 5
     },
     {
-      nameJP: "東北地方",
-      latJP:  39.5000, lngJP: 140.9000,
-      wikiJP: "https://ja.wikipedia.org/wiki/東北地方",
-      nameW:  "南米大陸",
-      latW:   -15.0, lngW: -60.0,
-      wikiW:  "https://ja.wikipedia.org/wiki/南アメリカ",
-      zoomJP: 7, zoomW: 5
-    },
-    {
-      nameJP: "本州",
-      latJP:  35.3000, lngJP: 136.9000,
+      nameJP: "本州(ユーラシア大陸)",
+      latJP:  35.0, lngJP: 137.0,
       wikiJP: "https://ja.wikipedia.org/wiki/本州",
       nameW:  "ユーラシア大陸",
       latW:   50.0, lngW: 60.0,
@@ -184,8 +113,8 @@
       zoomJP: 7, zoomW: 5
     },
     {
-      nameJP: "四国",
-      latJP:  33.7500, lngJP: 133.5000,
+      nameJP: "四国(オーストラリア大陸)",
+      latJP:  33.0, lngJP: 133.0,
       wikiJP: "https://ja.wikipedia.org/wiki/四国",
       nameW:  "オーストラリア大陸",
       latW:   -25.0, lngW: 135.0,
@@ -193,8 +122,8 @@
       zoomJP: 7, zoomW: 6
     },
     {
-      nameJP: "九州",
-      latJP:  32.8000, lngJP: 130.7000,
+      nameJP: "九州(アフリカ大陸)",
+      latJP:  32.0, lngJP: 130.0,
       wikiJP: "https://ja.wikipedia.org/wiki/九州",
       nameW:  "アフリカ大陸",
       latW:   5.0, lngW: 20.0,
@@ -202,30 +131,10 @@
       zoomJP: 7, zoomW: 5
     },
 
-    // --- 山・山脈 ---
+    // --- 湖・海等 ---
     {
-      nameJP: "日本アルプス",
-      latJP:  36.2000, lngJP: 137.6000,
-      wikiJP: "https://ja.wikipedia.org/wiki/日本アルプス",
-      nameW:  "ヒマラヤ山脈",
-      latW:   27.9881, lngW: 86.9250,
-      wikiW:  "https://ja.wikipedia.org/wiki/ヒマラヤ山脈",
-      zoomJP: 8, zoomW: 7
-    },
-    {
-      nameJP: "富士山",
-      latJP:  35.3606, lngJP: 138.7274,
-      wikiJP: "https://ja.wikipedia.org/wiki/富士山",
-      nameW:  "エベレスト",
-      latW:   27.9881, lngW: 86.9250,
-      wikiW:  "https://ja.wikipedia.org/wiki/エベレスト",
-      zoomJP: 9, zoomW: 8
-    },
-
-    // --- 湖・海 ---
-    {
-      nameJP: "琵琶湖",
-      latJP:  35.2500, lngJP: 136.1600,
+      nameJP: "琵琶湖(カスピ海)",
+      latJP:  35.1880, lngJP: 136.1939,
       wikiJP: "https://ja.wikipedia.org/wiki/琵琶湖",
       nameW:  "カスピ海",
       latW:   42.0, lngW: 50.0,
@@ -233,17 +142,17 @@
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "猪苗代湖",
-      latJP:  37.5167, lngJP: 140.1167,
-      wikiJP: "https://ja.wikipedia.org/wiki/猪苗代湖",
+      nameJP: "十和田湖(バイカル湖)",
+      latJP:  40.455, lngJP: 140.927,
+      wikiJP: "https://ja.wikipedia.org/wiki/十和田湖",
       nameW:  "バイカル湖",
       latW:   53.5, lngW: 108.0,
       wikiW:  "https://ja.wikipedia.org/wiki/バイカル湖",
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "瀬戸内海",
-      latJP:  34.2500, lngJP: 133.2000,
+      nameJP: "瀬戸内海(地中海)",
+      latJP:  34.25, lngJP: 133.20,
       wikiJP: "https://ja.wikipedia.org/wiki/瀬戸内海",
       nameW:  "地中海",
       latW:   35.0, lngW: 20.0,
@@ -251,19 +160,28 @@
       zoomJP: 7, zoomW: 6
     },
     {
-      nameJP: "田沢湖",
-      latJP:  39.7000, lngJP: 140.7000,
+      nameJP: "田沢湖(メキシコ湾)",
+      latJP:  39.72, lngJP: 140.683,
       wikiJP: "https://ja.wikipedia.org/wiki/田沢湖",
       nameW:  "メキシコ湾",
       latW:   27.0, lngW: -90.0,
       wikiW:  "https://ja.wikipedia.org/wiki/メキシコ湾",
       zoomJP: 9, zoomW: 4
     },
+    {
+      nameJP: "諏訪湖(アラル海)",
+      latJP:  36.05, lngJP: 138.08, // 諏訪湖付近(仮)
+      wikiJP: "https://ja.wikipedia.org/wiki/諏訪湖",
+      nameW:  "アラル海",
+      latW:   45.0, lngW: 60.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/アラル海",
+      zoomJP: 9, zoomW: 5
+    },
 
     // --- 半島 ---
     {
-      nameJP: "下北半島",
-      latJP:  41.2880, lngJP: 141.2280,
+      nameJP: "下北半島(カムチャッカ半島)",
+      latJP:  41.33, lngJP: 141.49,
       wikiJP: "https://ja.wikipedia.org/wiki/下北半島",
       nameW:  "カムチャッカ半島",
       latW:   56.0, lngW: 160.0,
@@ -271,8 +189,8 @@
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "能登半島",
-      latJP:  37.4500, lngJP: 137.2000,
+      nameJP: "能登半島(スカンディナヴィア半島)",
+      latJP:  37.283, lngJP: 137.0,
       wikiJP: "https://ja.wikipedia.org/wiki/能登半島",
       nameW:  "スカンディナヴィア半島",
       latW:   62.0, lngW: 15.0,
@@ -280,8 +198,8 @@
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "紀伊半島",
-      latJP:  34.2200, lngJP: 135.7000,
+      nameJP: "紀伊半島(アラビア半島)",
+      latJP:  34.175, lngJP: 135.98,
       wikiJP: "https://ja.wikipedia.org/wiki/紀伊半島",
       nameW:  "アラビア半島",
       latW:   20.0, lngW: 45.0,
@@ -289,8 +207,8 @@
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "山口県(西部)",
-      latJP:  34.0000, lngJP: 130.9500,
+      nameJP: "山口県(西部)(イベリア半島)",
+      latJP:  34.0, lngJP: 131.0,
       wikiJP: "https://ja.wikipedia.org/wiki/山口県",
       nameW:  "イベリア半島",
       latW:   40.0, lngW: -4.0,
@@ -298,17 +216,8 @@
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "伊豆半島",
-      latJP:  34.9000, lngJP: 138.9300,
-      wikiJP: "https://ja.wikipedia.org/wiki/伊豆半島",
-      nameW:  "インド",
-      latW:   22.0, lngW: 80.0,
-      wikiW:  "https://ja.wikipedia.org/wiki/インド",
-      zoomJP: 8, zoomW: 6
-    },
-    {
-      nameJP: "房総半島",
-      latJP:  35.2000, lngJP: 140.1000,
+      nameJP: "房総半島(インドシナ半島)",
+      latJP:  35.15, lngJP: 140.25,
       wikiJP: "https://ja.wikipedia.org/wiki/房総半島",
       nameW:  "インドシナ半島",
       latW:   15.0, lngW: 105.0,
@@ -316,8 +225,8 @@
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "牡鹿半島",
-      latJP:  38.3000, lngJP: 141.5000,
+      nameJP: "牡鹿半島(朝鮮半島)",
+      latJP:  38.377, lngJP: 141.495,
       wikiJP: "https://ja.wikipedia.org/wiki/牡鹿半島",
       nameW:  "朝鮮半島",
       latW:   39.0, lngW: 127.0,
@@ -325,110 +234,149 @@
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "佐渡島",
-      latJP:  38.0000, lngJP: 138.4000,
+      nameJP: "佐渡島(ノヴァヤゼムリャ)",
+      latJP:  38.0, lngJP: 138.4,
       wikiJP: "https://ja.wikipedia.org/wiki/佐渡島",
-      nameW:  "ノヴァヤゼムリャ島",
+      nameW:  "ノヴァヤゼムリャ",
       latW:   74.0, lngW: 57.0,
       wikiW:  "https://ja.wikipedia.org/wiki/ノヴァヤゼムリャ",
       zoomJP: 8, zoomW: 6
+    },
+
+    // --- 島など ---
+    {
+      nameJP: "伊豆大島(スマトラ島)",
+      latJP:  34.7567, lngJP: 139.3603,
+      wikiJP: "https://ja.wikipedia.org/wiki/伊豆大島",
+      nameW:  "スマトラ島",
+      latW:   0.0, lngW: 101.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/スマトラ島",
+      zoomJP: 8, zoomW: 6
+    },
+    {
+      nameJP: "伊豆半島(マレー半島)",
+      latJP:  34.9, lngJP: 138.93,
+      wikiJP: "https://ja.wikipedia.org/wiki/伊豆半島",
+      nameW:  "マレー半島",
+      latW:   4.5, lngW: 102.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/マレー半島",
+      zoomJP: 8, zoomW: 6
+    },
+    {
+      nameJP: "壱岐(イギリス)",
+      latJP:  33.766, lngJP: 129.733,
+      wikiJP: "https://ja.wikipedia.org/wiki/壱岐",
+      nameW:  "グレートブリテン島(イギリス)",
+      latW:   54.0, lngW: -2.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/グレートブリテン島",
+      zoomJP: 8, zoomW: 5
+    },
+    {
+      nameJP: "津軽海峡(ベーリング海峡)",
+      latJP:  41.25, lngJP: 140.5,
+      wikiJP: "https://ja.wikipedia.org/wiki/津軽海峡",
+      nameW:  "ベーリング海峡",
+      latW:   65.0, lngW: -169.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/ベーリング海峡",
+      zoomJP: 8, zoomW: 5
+    },
+    {
+      nameJP: "淡路島(ニューギニア島)",
+      latJP:  34.3, lngJP: 134.7,
+      wikiJP: "https://ja.wikipedia.org/wiki/淡路島",
+      nameW:  "ニューギニア島",
+      latW:   -5.0, lngW: 141.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/ニューギニア島",
+      zoomJP: 8, zoomW: 6
+    },
+    {
+      nameJP: "隠岐(スピッツベルゲン諸島)",
+      latJP:  36.2, lngJP: 133.3,
+      wikiJP: "https://ja.wikipedia.org/wiki/隠岐諸島",
+      nameW:  "スピッツベルゲン諸島",
+      latW:   78.0, lngW: 16.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/スヴァールバル諸島",
+      zoomJP: 8, zoomW: 5
+    },
+    {
+      nameJP: "種子島(マダガスカル島)",
+      latJP:  30.72, lngJP: 131.0, // 種子島付近（おおよそ）
+      wikiJP: "https://ja.wikipedia.org/wiki/種子島",
+      nameW:  "マダガスカル島",
+      latW:   -20.0, lngW: 47.0,
+      wikiW:  "https://ja.wikipedia.org/wiki/マダガスカル",
+      zoomJP: 8, zoomW: 5
     }
   ];
 
-  // --- マーカー配列 ---
-  const jpMarkers = [];
-  const wMarkers = [];
-  // --- 世界側マーカーのDOM要素 (点滅用)
+  // =============================
+  // 3. 世界マーカーDOM要素 (点滅用)
+  // =============================
   const wMarkerElems = {};
 
   // =============================
-  // 3. マーカー生成 & ポップアップ
+  // 4. マーカー生成 & ポップアップ
   // =============================
-  pairs.forEach((pair, index) => {
+  pairs.forEach((pair, i) => {
     // 日本側マーカー
     const jpMarker = L.marker([pair.latJP, pair.lngJP]).addTo(map);
     jpMarker.bindPopup(`
-      <div style="text-align:center;">
-        <h3>${pair.nameJP} => ${pair.nameW}</h3>
-        <p>
-          <a href="${pair.wikiJP}" target="_blank">${pair.nameJP}のWikipedia</a> /
-          <a href="${pair.wikiW}"  target="_blank">${pair.nameW}のWikipedia</a>
-        </p>
-        <button onclick="moveToWorld(${index})">対応先へ移動</button>
-      </div>
+      <b>${pair.nameJP}</b><br>
+      <a href="${pair.wikiJP}" target="_blank">Wikipedia</a>
+      <hr style="margin:6px 0">
+      <button onclick="moveToWorld(${i})">世界へ</button>
     `);
-    jpMarkers.push(jpMarker);
 
     // 世界側マーカー
     const wMarker = L.marker([pair.latW, pair.lngW]).addTo(map);
     wMarker.bindPopup(`
-      <div style="text-align:center;">
-        <h3>${pair.nameW} => ${pair.nameJP}</h3>
-        <p>
-          <a href="${pair.wikiW}"  target="_blank">${pair.nameW}のWikipedia</a> /
-          <a href="${pair.wikiJP}" target="_blank">${pair.nameJP}のWikipedia</a>
-        </p>
-        <button onclick="moveToJapan(${index})">日本に戻る</button>
-      </div>
+      <b>${pair.nameW}</b><br>
+      <a href="${pair.wikiW}" target="_blank">Wikipedia</a>
+      <hr style="margin:6px 0">
+      <button onclick="moveToJapan(${i})">日本に戻る</button>
     `);
-    wMarkers.push(wMarker);
 
-    // DOM要素を取得（点滅アニメ用）
+    // 点滅アニメ用DOM取得
     wMarker.on('add', () => {
-      const el = wMarker.getElement();
-      wMarkerElems[index] = el;
+      wMarkerElems[i] = wMarker.getElement();
     });
   });
 
   // =============================
-  // 4. 地図移動 & 点滅制御
+  // 5. 地図移動 & 点滅制御
   // =============================
-  function moveToWorld(index) {
-    const p = pairs[index];
+  function moveToWorld(i) {
+    const p = pairs[i];
     map.flyTo([p.latW, p.lngW], p.zoomW);
-    setTimeout(() => {
-      wMarkers[index].openPopup();
-      blinkWorldMarker(index);
-    }, 1000);
+    setTimeout(() => blinkWorldMarker(i), 1000);
   }
-
-  function moveToJapan(index) {
-    const p = pairs[index];
+  function moveToJapan(i) {
+    const p = pairs[i];
     map.flyTo([p.latJP, p.lngJP], p.zoomJP);
-    setTimeout(() => {
-      jpMarkers[index].openPopup();
-      removeAllBlinks();
-    }, 1000);
-  }
-
-  function blinkWorldMarker(index) {
     removeAllBlinks();
-    const el = wMarkerElems[index];
-    if (!el) return;
-    el.classList.add('blink-marker');
+  }
+  function blinkWorldMarker(i) {
+    removeAllBlinks();
+    if (!wMarkerElems[i]) return;
+    wMarkerElems[i].classList.add('blink-marker');
     setTimeout(() => {
-      el.classList.remove('blink-marker');
+      wMarkerElems[i]?.classList.remove('blink-marker');
     }, 3000);
   }
-
   function removeAllBlinks() {
-    Object.values(wMarkerElems).forEach(el => {
-      el.classList.remove('blink-marker');
-    });
+    Object.values(wMarkerElems).forEach(el => el.classList.remove('blink-marker'));
   }
 
   // =============================
-  // 5. 自動ツアー機能 (4秒おき) & 停止機能
+  // 6. 自動ツアー機能 (4秒おき) & 停止
   // =============================
-  let autoTourTimer = null; 
-  let autoTourIndex = 0;    
-  let goingToWorld = true;  
+  let autoTourTimer = null;
+  let autoTourIndex = 0;
+  let goingToWorld = true;
 
   function startAutoTour() {
-    // 既に動いていたら停止
-    stopAutoTour();
+    stopAutoTour(); // リセットしてから開始
 
-    // ボタン切り替え: 自動ツアー -> 停止
     document.getElementById("auto-tour-btn").style.display = "none";
     document.getElementById("stop-btn").style.display = "inline-block";
 
@@ -441,17 +389,14 @@
     if (autoTourIndex >= pairs.length) {
       autoTourIndex = 0;
     }
-
     if (goingToWorld) {
       moveToWorld(autoTourIndex);
-      // 4秒後に 日本へ
       autoTourTimer = setTimeout(() => {
         goingToWorld = false;
         autoTourNext();
       }, 4000);
     } else {
       moveToJapan(autoTourIndex);
-      // 4秒後に 次のペア
       autoTourTimer = setTimeout(() => {
         goingToWorld = true;
         autoTourIndex++;
@@ -461,12 +406,10 @@
   }
 
   function stopAutoTour() {
-    // タイマー停止
     if (autoTourTimer) {
       clearTimeout(autoTourTimer);
       autoTourTimer = null;
     }
-    // ボタン切り替え: 停止 -> 自動ツアー
     document.getElementById("stop-btn").style.display = "none";
     document.getElementById("auto-tour-btn").style.display = "inline-block";
   }
