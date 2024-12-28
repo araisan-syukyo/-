@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <title>日本は世界の縮図？ - 修正版</title>
+  <meta charset="utf-8" />
+  <title>日本は世界の縮図？ - ペア関係明記＆自動ツアー</title>
+
+  <!-- スマホ・タブレット対応 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- LeafletのCSS（CDN） -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
 
   <style>
+    /* レイアウト全体 */
     html, body {
       margin: 0; 
       padding: 0; 
@@ -17,6 +23,8 @@
       background: linear-gradient(160deg, #edf7fa 0%, #bee8fa 100%);
       color: #444;
     }
+
+    /* ヘッダー（上部固定） */
     header {
       position: fixed;
       top: 0;
@@ -49,11 +57,15 @@
     .tour-btn:hover {
       background-color: #42b0ec;
     }
+
+    /* 地図本体 */
     #map {
       width: 100%;
       height: calc(100% - 70px);
       margin-top: 70px;
     }
+
+    /* マーカー点滅アニメ */
     @keyframes markerBlink {
       0%   { transform: scale(1);   filter: brightness(1); }
       50%  { transform: scale(1.3); filter: brightness(2); }
@@ -69,14 +81,16 @@
 <header>
   <h1>日本は世界の縮図？</h1>
   <div>
+    <!-- 自動ツアー開始ボタン -->
     <button id="auto-tour-btn" class="tour-btn" onclick="startAutoTour()">自動ツアー</button>
+    <!-- 停止ボタン（初期は非表示） -->
     <button id="stop-btn" class="tour-btn" style="display:none;" onclick="stopAutoTour()">停止</button>
   </div>
 </header>
 
 <div id="map"></div>
 
-<!-- LeafletのJS（CDN） -->
+<!-- Leaflet (CDN) -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
   // =============================
@@ -88,91 +102,93 @@
   }).addTo(map);
 
   // =============================
-  // 2. 日本⇔世界の対応データ
-  //    バルカン湖ペアを削除
-  //    諏訪湖(アラル海), 種子島(マダガスカル島) 追加
+  // 2. 日本⇔世界の対応データ (全ペア)
+  //    nameJP / nameW に日本語 + (ローマ字/英語)
+  //    wikiJP / wikiW でリンク先
+  //    latJP,lngJP / latW,lngW で座標
+  //    zoomJP,zoomW で飛ぶときのズーム
   // =============================
   const pairs = [
     // --- 大陸・地方 ---
     {
-      nameJP: "北海道(北米)",
+      nameJP: "北海道(Hokkaidō)",
       latJP:  43.4, lngJP: 142.0,
       wikiJP: "https://ja.wikipedia.org/wiki/北海道",
-      nameW:  "北アメリカ",
+      nameW:  "北アメリカ(North America)",
       latW:   40.0, lngW: -100.0,
       wikiW:  "https://ja.wikipedia.org/wiki/北アメリカ",
       zoomJP: 7, zoomW: 5
     },
     {
-      nameJP: "本州(ユーラシア大陸)",
+      nameJP: "本州(Honshū)",
       latJP:  35.0, lngJP: 137.0,
       wikiJP: "https://ja.wikipedia.org/wiki/本州",
-      nameW:  "ユーラシア大陸",
+      nameW:  "ユーラシア大陸(Eurasia)",
       latW:   50.0, lngW: 60.0,
       wikiW:  "https://ja.wikipedia.org/wiki/ユーラシア大陸",
       zoomJP: 7, zoomW: 5
     },
     {
-      nameJP: "四国(オーストラリア大陸)",
+      nameJP: "四国(Shikoku)",
       latJP:  33.0, lngJP: 133.0,
       wikiJP: "https://ja.wikipedia.org/wiki/四国",
-      nameW:  "オーストラリア大陸",
+      nameW:  "オーストラリア大陸(Australia)",
       latW:   -25.0, lngW: 135.0,
       wikiW:  "https://ja.wikipedia.org/wiki/オーストラリア_(大陸)",
       zoomJP: 7, zoomW: 6
     },
     {
-      nameJP: "九州(アフリカ大陸)",
+      nameJP: "九州(Kyūshū)",
       latJP:  32.0, lngJP: 130.0,
       wikiJP: "https://ja.wikipedia.org/wiki/九州",
-      nameW:  "アフリカ大陸",
+      nameW:  "アフリカ大陸(Africa)",
       latW:   5.0, lngW: 20.0,
       wikiW:  "https://ja.wikipedia.org/wiki/アフリカ",
       zoomJP: 7, zoomW: 5
     },
 
-    // --- 湖・海等 ---
+    // --- 湖・海 ---
     {
-      nameJP: "琵琶湖(カスピ海)",
+      nameJP: "琵琶湖(Biwako)",
       latJP:  35.1880, lngJP: 136.1939,
       wikiJP: "https://ja.wikipedia.org/wiki/琵琶湖",
-      nameW:  "カスピ海",
+      nameW:  "カスピ海(Caspian Sea)",
       latW:   42.0, lngW: 50.0,
       wikiW:  "https://ja.wikipedia.org/wiki/カスピ海",
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "十和田湖(バイカル湖)",
+      nameJP: "十和田湖(Towada-ko)",
       latJP:  40.455, lngJP: 140.927,
       wikiJP: "https://ja.wikipedia.org/wiki/十和田湖",
-      nameW:  "バイカル湖",
+      nameW:  "バイカル湖(Lake Baikal)",
       latW:   53.5, lngW: 108.0,
       wikiW:  "https://ja.wikipedia.org/wiki/バイカル湖",
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "瀬戸内海(地中海)",
+      nameJP: "瀬戸内海(Seto Inland Sea)",
       latJP:  34.25, lngJP: 133.20,
       wikiJP: "https://ja.wikipedia.org/wiki/瀬戸内海",
-      nameW:  "地中海",
+      nameW:  "地中海(Mediterranean Sea)",
       latW:   35.0, lngW: 20.0,
       wikiW:  "https://ja.wikipedia.org/wiki/地中海",
       zoomJP: 7, zoomW: 6
     },
     {
-      nameJP: "田沢湖(メキシコ湾)",
+      nameJP: "田沢湖(Tazawa-ko)",
       latJP:  39.72, lngJP: 140.683,
       wikiJP: "https://ja.wikipedia.org/wiki/田沢湖",
-      nameW:  "メキシコ湾",
+      nameW:  "メキシコ湾(Gulf of Mexico)",
       latW:   27.0, lngW: -90.0,
       wikiW:  "https://ja.wikipedia.org/wiki/メキシコ湾",
       zoomJP: 9, zoomW: 4
     },
     {
-      nameJP: "諏訪湖(アラル海)",
-      latJP:  36.05, lngJP: 138.08, // 諏訪湖付近(仮)
+      nameJP: "諏訪湖(Suwa-ko)",
+      latJP:  36.05, lngJP: 138.08,
       wikiJP: "https://ja.wikipedia.org/wiki/諏訪湖",
-      nameW:  "アラル海",
+      nameW:  "アラル海(Aral Sea)",
       latW:   45.0, lngW: 60.0,
       wikiW:  "https://ja.wikipedia.org/wiki/アラル海",
       zoomJP: 9, zoomW: 5
@@ -180,64 +196,64 @@
 
     // --- 半島 ---
     {
-      nameJP: "下北半島(カムチャッカ半島)",
+      nameJP: "下北半島(Shimokita-hantō)",
       latJP:  41.33, lngJP: 141.49,
       wikiJP: "https://ja.wikipedia.org/wiki/下北半島",
-      nameW:  "カムチャッカ半島",
+      nameW:  "カムチャッカ半島(Kamchatka Peninsula)",
       latW:   56.0, lngW: 160.0,
       wikiW:  "https://ja.wikipedia.org/wiki/カムチャツカ半島",
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "能登半島(スカンディナヴィア半島)",
+      nameJP: "能登半島(Noto-hantō)",
       latJP:  37.283, lngJP: 137.0,
       wikiJP: "https://ja.wikipedia.org/wiki/能登半島",
-      nameW:  "スカンディナヴィア半島",
+      nameW:  "スカンディナヴィア半島(Scandinavian Peninsula)",
       latW:   62.0, lngW: 15.0,
       wikiW:  "https://ja.wikipedia.org/wiki/スカンディナヴィア",
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "紀伊半島(アラビア半島)",
+      nameJP: "紀伊半島(Kii-hantō)",
       latJP:  34.175, lngJP: 135.98,
       wikiJP: "https://ja.wikipedia.org/wiki/紀伊半島",
-      nameW:  "アラビア半島",
+      nameW:  "アラビア半島(Arabian Peninsula)",
       latW:   20.0, lngW: 45.0,
       wikiW:  "https://ja.wikipedia.org/wiki/アラビア半島",
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "山口県(西部)(イベリア半島)",
+      nameJP: "山口県(西部)(Yamaguchi)",
       latJP:  34.0, lngJP: 131.0,
       wikiJP: "https://ja.wikipedia.org/wiki/山口県",
-      nameW:  "イベリア半島",
+      nameW:  "イベリア半島(Iberian Peninsula)",
       latW:   40.0, lngW: -4.0,
       wikiW:  "https://ja.wikipedia.org/wiki/イベリア半島",
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "房総半島(インドシナ半島)",
+      nameJP: "房総半島(Bōsō-hantō)",
       latJP:  35.15, lngJP: 140.25,
       wikiJP: "https://ja.wikipedia.org/wiki/房総半島",
-      nameW:  "インドシナ半島",
+      nameW:  "インドシナ半島(Indochinese Peninsula)",
       latW:   15.0, lngW: 105.0,
       wikiW:  "https://ja.wikipedia.org/wiki/インドシナ",
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "牡鹿半島(朝鮮半島)",
+      nameJP: "牡鹿半島(Oshika-hantō)",
       latJP:  38.377, lngJP: 141.495,
       wikiJP: "https://ja.wikipedia.org/wiki/牡鹿半島",
-      nameW:  "朝鮮半島",
+      nameW:  "朝鮮半島(Korean Peninsula)",
       latW:   39.0, lngW: 127.0,
       wikiW:  "https://ja.wikipedia.org/wiki/朝鮮半島",
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "佐渡島(ノヴァヤゼムリャ)",
+      nameJP: "佐渡島(Sado)",
       latJP:  38.0, lngJP: 138.4,
       wikiJP: "https://ja.wikipedia.org/wiki/佐渡島",
-      nameW:  "ノヴァヤゼムリャ",
+      nameW:  "ノヴァヤゼムリャ(Novaya Zemlya)",
       latW:   74.0, lngW: 57.0,
       wikiW:  "https://ja.wikipedia.org/wiki/ノヴァヤゼムリャ",
       zoomJP: 8, zoomW: 6
@@ -245,64 +261,64 @@
 
     // --- 島など ---
     {
-      nameJP: "伊豆大島(スマトラ島)",
+      nameJP: "伊豆大島(Izu-ōshima)",
       latJP:  34.7567, lngJP: 139.3603,
       wikiJP: "https://ja.wikipedia.org/wiki/伊豆大島",
-      nameW:  "スマトラ島",
+      nameW:  "スマトラ島(Sumatra)",
       latW:   0.0, lngW: 101.0,
       wikiW:  "https://ja.wikipedia.org/wiki/スマトラ島",
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "伊豆半島(マレー半島)",
+      nameJP: "伊豆半島(Izu-hantō)",
       latJP:  34.9, lngJP: 138.93,
       wikiJP: "https://ja.wikipedia.org/wiki/伊豆半島",
-      nameW:  "マレー半島",
+      nameW:  "マレー半島(Malay Peninsula)",
       latW:   4.5, lngW: 102.0,
       wikiW:  "https://ja.wikipedia.org/wiki/マレー半島",
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "壱岐(イギリス)",
+      nameJP: "壱岐(Iki)",
       latJP:  33.766, lngJP: 129.733,
       wikiJP: "https://ja.wikipedia.org/wiki/壱岐",
-      nameW:  "グレートブリテン島(イギリス)",
+      nameW:  "グレートブリテン島(Great Britain)",
       latW:   54.0, lngW: -2.0,
       wikiW:  "https://ja.wikipedia.org/wiki/グレートブリテン島",
       zoomJP: 8, zoomW: 5
     },
     {
-      nameJP: "津軽海峡(ベーリング海峡)",
+      nameJP: "津軽海峡(Tsugaru-kaikyō)",
       latJP:  41.25, lngJP: 140.5,
       wikiJP: "https://ja.wikipedia.org/wiki/津軽海峡",
-      nameW:  "ベーリング海峡",
+      nameW:  "ベーリング海峡(Bering Strait)",
       latW:   65.0, lngW: -169.0,
       wikiW:  "https://ja.wikipedia.org/wiki/ベーリング海峡",
       zoomJP: 8, zoomW: 5
     },
     {
-      nameJP: "淡路島(ニューギニア島)",
+      nameJP: "淡路島(Awaji-shima)",
       latJP:  34.3, lngJP: 134.7,
       wikiJP: "https://ja.wikipedia.org/wiki/淡路島",
-      nameW:  "ニューギニア島",
+      nameW:  "ニューギニア島(New Guinea)",
       latW:   -5.0, lngW: 141.0,
       wikiW:  "https://ja.wikipedia.org/wiki/ニューギニア島",
       zoomJP: 8, zoomW: 6
     },
     {
-      nameJP: "隠岐(スピッツベルゲン諸島)",
+      nameJP: "隠岐(Oki)",
       latJP:  36.2, lngJP: 133.3,
       wikiJP: "https://ja.wikipedia.org/wiki/隠岐諸島",
-      nameW:  "スピッツベルゲン諸島",
+      nameW:  "スピッツベルゲン諸島(Spitsbergen)",
       latW:   78.0, lngW: 16.0,
       wikiW:  "https://ja.wikipedia.org/wiki/スヴァールバル諸島",
       zoomJP: 8, zoomW: 5
     },
     {
-      nameJP: "種子島(マダガスカル島)",
-      latJP:  30.72, lngJP: 131.0, // 種子島付近（おおよそ）
+      nameJP: "種子島(Tanegashima)",
+      latJP:  30.72, lngJP: 131.0,
       wikiJP: "https://ja.wikipedia.org/wiki/種子島",
-      nameW:  "マダガスカル島",
+      nameW:  "マダガスカル島(Madagascar)",
       latW:   -20.0, lngW: 47.0,
       wikiW:  "https://ja.wikipedia.org/wiki/マダガスカル",
       zoomJP: 8, zoomW: 5
@@ -310,33 +326,37 @@
   ];
 
   // =============================
-  // 3. 世界マーカーDOM要素 (点滅用)
+  // 3. 世界側マーカーDOM要素 (点滅用)
   // =============================
   const wMarkerElems = {};
 
   // =============================
-  // 4. マーカー生成 & ポップアップ
+  // 4. マーカー生成 & ポップアップ (ペア関係を明記)
   // =============================
   pairs.forEach((pair, i) => {
     // 日本側マーカー
     const jpMarker = L.marker([pair.latJP, pair.lngJP]).addTo(map);
+    // ○○(日本) - ○○(世界)
     jpMarker.bindPopup(`
-      <b>${pair.nameJP}</b><br>
-      <a href="${pair.wikiJP}" target="_blank">Wikipedia</a>
+      <b>${pair.nameJP} - ${pair.nameW}</b><br>
+      <a href="${pair.wikiJP}" target="_blank">${pair.nameJP}のWikipedia</a><br>
+      <a href="${pair.wikiW}"  target="_blank">${pair.nameW}のWikipedia</a>
       <hr style="margin:6px 0">
-      <button onclick="moveToWorld(${i})">世界へ</button>
+      <button onclick="moveToWorld(${i})">対応した地点へ</button>
     `);
 
     // 世界側マーカー
     const wMarker = L.marker([pair.latW, pair.lngW]).addTo(map);
+    // ○○(世界) - ○○(日本)
     wMarker.bindPopup(`
-      <b>${pair.nameW}</b><br>
-      <a href="${pair.wikiW}" target="_blank">Wikipedia</a>
+      <b>${pair.nameW} - ${pair.nameJP}</b><br>
+      <a href="${pair.wikiW}"  target="_blank">${pair.nameW}のWikipedia</a><br>
+      <a href="${pair.wikiJP}" target="_blank">${pair.nameJP}のWikipedia</a>
       <hr style="margin:6px 0">
       <button onclick="moveToJapan(${i})">日本に戻る</button>
     `);
 
-    // 点滅アニメ用DOM取得
+    // 点滅用DOM
     wMarker.on('add', () => {
       wMarkerElems[i] = wMarker.getElement();
     });
@@ -368,15 +388,14 @@
   }
 
   // =============================
-  // 6. 自動ツアー機能 (4秒おき) & 停止
+  // 6. 自動ツアー (4秒おき) & 停止
   // =============================
   let autoTourTimer = null;
   let autoTourIndex = 0;
   let goingToWorld = true;
 
   function startAutoTour() {
-    stopAutoTour(); // リセットしてから開始
-
+    stopAutoTour(); // もし動いていたらリセット
     document.getElementById("auto-tour-btn").style.display = "none";
     document.getElementById("stop-btn").style.display = "inline-block";
 
