@@ -18,63 +18,46 @@
       font-family: sans-serif;
       background: linear-gradient(160deg, #edf7fa 0%, #bee8fa 100%);
     }
-
     /* タイトルヘッダー */
     header {
-      position: fixed; 
-      top: 0; 
-      width: 100%;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      z-index: 999;
-
-      /* ★ ヘッダー内を上下2行レイアウトにするために追加 */
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+      position: fixed; top: 0; width: 100%;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem; background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 999;
     }
-    /* タイトル行 */
-    .header-top {
-      display: flex;
-      justify-content: space-between; 
-      align-items: center;
-    }
-    .header-top h1 {
+    header h1 {
       margin: 0; font-size: 1.6rem; color: #333;
     }
-
-    /* ★ 「ファンタジーとしてお楽しみ下さい」メッセージのスタイル */
-    .fantasy-message {
-      font-size: 0.95rem;
-      color: #666;
-      margin: 0; /* 見た目調整 */
-    }
-
-    /* ボタンエリア */
     .btn-area {
-      display: flex; 
-      gap: 0.5rem;
+      display: flex; gap: 0.5rem;
     }
     .tour-btn {
-      padding: 0.5rem 1rem; 
-      border: none; 
-      border-radius: 4px;
-      background-color: #67c0f5; 
-      color: #fff; 
-      font-size: 0.9rem;
-      cursor: pointer; 
-      transition: background-color 0.3s ease;
+      padding: 0.5rem 1rem; border: none; border-radius: 4px;
+      background-color: #67c0f5; color: #fff; font-size: 0.9rem;
+      cursor: pointer; transition: background-color 0.3s ease;
     }
     .tour-btn:hover {
       background-color: #42b0ec;
+    }
+
+    /* ★ 追加: 「ファンタジーとしてお楽しみ下さい」メッセージのスタイル */
+    .fantasy-message {
+      position: fixed;
+      top: 70px; /* ヘッダーの高さ(70px)ぶん下げる */
+      width: 100%;
+      text-align: center;
+      font-size: 1rem;
+      color: #666;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 0.5rem 0;
+      z-index: 998; /* ヘッダー(999)より一段下 */
     }
 
     /* 地図本体 */
     #map {
       width: 100%; 
       height: calc(100% - 70px);
-      margin-top: 70px; /* ヘッダーの高さに合わせる */
+      margin-top: 70px;
     }
 
     /* 点滅アニメーション */
@@ -91,34 +74,32 @@
 
 <body>
 <header>
-  <!-- 上段：タイトル + ボタン -->
-  <div class="header-top">
-    <h1>日本は世界の縮図？</h1>
-    <div class="btn-area">
-      <!-- 従来ツアー（日本⇔世界）ボタン -->
-      <button id="auto-tour-btn" class="tour-btn" onclick="startAutoTour()">自動ツアー開始</button>
-      <button id="stop-btn" class="tour-btn" style="display:none;" onclick="stopAutoTour()">自動ツアー停止</button>
+  <h1>日本は世界の縮図？</h1>
+  <div class="btn-area">
+    <!-- 従来ツアー（日本⇔世界）ボタン -->
+    <button id="auto-tour-btn" class="tour-btn" onclick="startAutoTour()">自動ツアー開始</button>
+    <button id="stop-btn" class="tour-btn" style="display:none;" onclick="stopAutoTour()">自動ツアー停止</button>
 
-      <!-- 万国巡幸ツアーボタン -->
-      <button id="ancient-tour-btn" class="tour-btn" onclick="startAncientTour()">
-        万国巡幸ツアー 上古第三代・天日豊本黄人皇主神天皇の万国巡幸に基づく
-      </button>
-      <button id="ancient-stop-btn" class="tour-btn" style="display:none;" onclick="stopAncientTour()">
-        万国巡幸ツアー停止
-      </button>
-    </div>
+    <!-- 万国巡幸ツアーボタン -->
+    <button id="ancient-tour-btn" class="tour-btn" onclick="startAncientTour()">
+      万国巡幸ツアー 上古第三代・天日豊本黄人皇主神天皇の万国巡幸に基づく
+    </button>
+    <button id="ancient-stop-btn" class="tour-btn" style="display:none;" onclick="stopAncientTour()">
+      万国巡幸ツアー停止
+    </button>
   </div>
-
-  <!-- 下段：ファンタジー文言 -->
-  <p class="fantasy-message">
-    ファンタジーとしてお楽しみ下さい
-  </p>
 </header>
+
+<!-- ★ 追加: 「ファンタジーとしてお楽しみ下さい」要素 -->
+<div class="fantasy-message">
+  ファンタジーとしてお楽しみ下さい
+</div>
 
 <div id="map"></div>
 
 <!-- LeafletのJS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <script>
 ////////////////////////////////////////////////////////////////////////////////
 // 1. 地図の初期化
@@ -169,7 +150,180 @@ const pairs = [
     wikiW:  "https://ja.wikipedia.org/wiki/アフリカ",
     zoomJP: 7, zoomW: 5
   },
-  // ... 以下略（湖・海, 半島, 島のデータも含む） ...
+  // --- 湖・海 ---
+  {
+    nameJP: "琵琶湖",
+    latJP:  35.1880, lngJP: 136.1939,
+    wikiJP: "https://ja.wikipedia.org/wiki/琵琶湖",
+    nameW:  "カスピ海",
+    latW:   42.0, lngW: 50.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/カスピ海",
+    zoomJP: 8, zoomW: 6
+  },
+  {
+    nameJP: "十和田湖",
+    latJP:  40.455, lngJP: 140.927,
+    wikiJP: "https://ja.wikipedia.org/wiki/十和田湖",
+    nameW:  "バイカル湖",
+    latW:   53.5, lngW: 108.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/バイカル湖",
+    zoomJP: 8, zoomW: 6
+  },
+  {
+    nameJP: "瀬戸内海",
+    latJP:  34.25, lngJP: 133.20,
+    wikiJP: "https://ja.wikipedia.org/wiki/瀬戸内海",
+    nameW:  "地中海",
+    latW:   35.0, lngW: 20.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/地中海",
+    zoomJP: 7, zoomW: 6
+  },
+  {
+    nameJP: "田沢湖",
+    latJP:  39.72, lngJP: 140.683,
+    wikiJP: "https://ja.wikipedia.org/wiki/田沢湖",
+    nameW:  "メキシコ湾",
+    latW:   27.0, lngW: -90.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/メキシコ湾",
+    zoomJP: 9, zoomW: 4
+  },
+  {
+    nameJP: "諏訪湖",
+    latJP:  36.05, lngJP: 138.08,
+    wikiJP: "https://ja.wikipedia.org/wiki/諏訪湖",
+    nameW:  "アラル海",
+    latW:   45.0, lngW: 60.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/アラル海",
+    zoomJP: 9, zoomW: 5
+  },
+  // --- 半島 ---
+  {
+    nameJP: "下北半島",
+    latJP:  41.33, lngJP: 141.49,
+    wikiJP: "https://ja.wikipedia.org/wiki/下北半島",
+    nameW:  "カムチャッカ半島",
+    latW:   56.0, lngW: 160.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/カムチャツカ半島",
+    zoomJP: 8, zoomW: 6
+  },
+  {
+    nameJP: "能登半島",
+    latJP:  37.283, lngJP: 137.0,
+    wikiJP: "https://ja.wikipedia.org/wiki/能登半島",
+    nameW:  "スカンディナヴィア半島",
+    latW:   62.0, lngW: 15.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/スカンディナヴィア",
+    zoomJP: 8, zoomW: 6
+  },
+  {
+    nameJP: "紀伊半島",
+    latJP:  34.175, lngJP: 135.98,
+    wikiJP: "https://ja.wikipedia.org/wiki/紀伊半島",
+    nameW:  "アラビア半島",
+    latW:   20.0, lngW: 45.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/アラビア半島",
+    zoomJP: 8, zoomW: 6
+  },
+  {
+    nameJP: "山口県(西部)",
+    latJP:  34.0, lngJP: 131.0,
+    wikiJP: "https://ja.wikipedia.org/wiki/山口県",
+    nameW:  "イベリア半島",
+    latW:   40.0, lngW: -4.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/イベリア半島",
+    zoomJP: 8, zoomW: 6
+  },
+  {
+    nameJP: "房総半島",
+    latJP:  35.15, lngJP: 140.25,
+    wikiJP: "https://ja.wikipedia.org/wiki/房総半島",
+    nameW:  "インドシナ半島",
+    latW:   15.0, lngW: 105.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/インドシナ",
+    zoomJP: 8, zoomW: 6
+  },
+  {
+    nameJP: "牡鹿半島",
+    latJP:  38.377, lngJP: 141.495,
+    wikiJP: "https://ja.wikipedia.org/wiki/牡鹿半島",
+    nameW:  "朝鮮半島",
+    latW:   39.0, lngW: 127.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/朝鮮半島",
+    zoomJP: 8, zoomW: 6
+  },
+  {
+    nameJP: "佐渡島",
+    latJP:  38.0, lngJP: 138.4,
+    wikiJP: "https://ja.wikipedia.org/wiki/佐渡島",
+    nameW:  "ノヴァヤゼムリャ",
+    latW:   74.0, lngW: 57.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/ノヴァヤゼムリャ",
+    zoomJP: 8, zoomW: 6
+  },
+  // --- 島 ---
+  {
+    nameJP: "伊豆大島",
+    latJP:  34.7567, lngJP: 139.3603,
+    wikiJP: "https://ja.wikipedia.org/wiki/伊豆大島",
+    nameW:  "スマトラ島",
+    latW:   0.0, lngW: 101.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/スマトラ島",
+    zoomJP: 8, zoomW: 6
+  },
+  {
+    nameJP: "伊豆半島",
+    latJP:  34.9, lngJP: 138.93,
+    wikiJP: "https://ja.wikipedia.org/wiki/伊豆半島",
+    nameW:  "マレー半島",
+    latW:   4.5, lngW: 102.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/マレー半島",
+    zoomJP: 8, zoomW: 6
+  },
+  {
+    nameJP: "壱岐",
+    latJP:  33.766, lngJP: 129.733,
+    wikiJP: "https://ja.wikipedia.org/wiki/壱岐",
+    nameW:  "グレートブリテン島",
+    latW:   54.0, lngW: -2.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/グレートブリテン島",
+    zoomJP: 8, zoomW: 5
+  },
+  {
+    nameJP: "津軽海峡",
+    latJP:  41.25, lngJP: 140.5,
+    wikiJP: "https://ja.wikipedia.org/wiki/津軽海峡",
+    nameW:  "ベーリング海峡",
+    latW:   65.0, lngW: -169.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/ベーリング海峡",
+    zoomJP: 8, zoomW: 5
+  },
+  {
+    nameJP: "淡路島",
+    latJP:  34.3, lngJP: 134.7,
+    wikiJP: "https://ja.wikipedia.org/wiki/淡路島",
+    nameW:  "ニューギニア島",
+    latW:   -5.0, lngW: 141.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/ニューギニア島",
+    zoomJP: 8, zoomW: 6
+  },
+  {
+    nameJP: "隠岐",
+    latJP:  36.2, lngJP: 133.3,
+    wikiJP: "https://ja.wikipedia.org/wiki/隠岐諸島",
+    nameW:  "スピッツベルゲン諸島",
+    latW:   78.0, lngW: 16.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/スヴァールバル諸島",
+    zoomJP: 8, zoomW: 5
+  },
+  {
+    nameJP: "種子島",
+    latJP:  30.72, lngJP: 131.0,
+    wikiJP: "https://ja.wikipedia.org/wiki/種子島",
+    nameW:  "マダガスカル島",
+    latW:   -20.0, lngW: 47.0,
+    wikiW:  "https://ja.wikipedia.org/wiki/マダガスカル",
+    zoomJP: 8, zoomW: 5
+  }
 ];
 
 // ▼ 世界側マーカー DOM (点滅用)
@@ -362,7 +516,8 @@ let ancientTourTimer = null;
 let ancientTourIndex = 0;
 
 function startAncientTour() {
-  stopAutoTour(); // 他のツアー(従来ツアー)を停止
+  // 他のツアー(従来ツアー)を停止
+  stopAutoTour();
   document.getElementById("ancient-tour-btn").style.display = "none";
   document.getElementById("ancient-stop-btn").style.display = "inline-block";
 
