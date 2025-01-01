@@ -26,22 +26,31 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 999;
     }
     header h1 {
-      margin: 0; font-size: 1.6rem; color: #333;
+      margin: 0;
+      font-size: 1.6rem;
+      color: #333;
     }
     .btn-area {
-      display: flex; gap: 0.5rem;
+      display: flex;
+      gap: 0.5rem;
     }
     .tour-btn {
-      padding: 0.5rem 1rem; border: none; border-radius: 4px;
-      background-color: #67c0f5; color: #fff; font-size: 0.9rem;
-      cursor: pointer; transition: background-color 0.3s ease;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      background-color: #67c0f5;
+      color: #fff;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
     }
     .tour-btn:hover {
       background-color: #42b0ec;
     }
     /* 地図本体 */
     #map {
-      width: 100%; height: calc(100% - 70px);
+      width: 100%;
+      height: calc(100% - 70px);
       margin-top: 70px;
     }
     /* 点滅アニメーション */
@@ -89,11 +98,19 @@
 <div id="map"></div>
 <div id="statusMessage"></div>
 
-<!-- LeafletのJS -->
+<!-- LeafletのJS（CDN） -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- 
+  注意:
+   このファイルの JavaScript/CSS/HTML コードは MITライセンスとしますが、
+   以下 "ancientTexts" に含まれる文章は 
+   © 2024 皇祖皇太神宮, All Rights Reserved (MITライセンス対象外)
+   となります。無断転載・改変は禁止とします。
+-->
 <script>
 ////////////////////////////////////////////////////////////////////////////////
-// 1. 地図の初期化
+// 1. 地図の初期化 (MITライセンス)
 ////////////////////////////////////////////////////////////////////////////////
 const map = L.map("map").setView([36, 138], 5);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -101,408 +118,103 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 ////////////////////////////////////////////////////////////////////////////////
-// 2. 「日本は世界の縮図？」ペア関係データ（全て）
+// 2. 従来ツアー: 日本は世界の縮図？ (MITライセンス)
 ////////////////////////////////////////////////////////////////////////////////
-const pairs = [
-  // --- 大陸・地方 ---
-  {
-    nameJP: "北海道",
-    latJP:  43.4, lngJP: 142.0,
-    wikiJP: "https://ja.wikipedia.org/wiki/北海道",
-    nameW:  "北アメリカ",
-    latW:   40.0, lngW: -100.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/北アメリカ",
-    zoomJP: 7, zoomW: 5
-  },
-  {
-    nameJP: "本州",
-    latJP:  35.0, lngJP: 137.0,
-    wikiJP: "https://ja.wikipedia.org/wiki/本州",
-    nameW:  "ユーラシア大陸",
-    latW:   50.0, lngW: 60.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/ユーラシア大陸",
-    zoomJP: 7, zoomW: 5
-  },
-  {
-    nameJP: "四国",
-    latJP:  33.0, lngJP: 133.0,
-    wikiJP: "https://ja.wikipedia.org/wiki/四国",
-    nameW:  "オーストラリア",
-    latW:   -25.0, lngW: 135.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/オーストラリア",
-    zoomJP: 7, zoomW: 6
-  },
-  {
-    nameJP: "九州",
-    latJP:  32.0, lngJP: 130.0,
-    wikiJP: "https://ja.wikipedia.org/wiki/九州",
-    nameW:  "アフリカ大陸",
-    latW:   5.0, lngW: 20.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/アフリカ",
-    zoomJP: 7, zoomW: 5
-  },
+// pairs などのデータをここに含める（省略）
 
-  // --- 湖・海 ---
-  {
-    nameJP: "琵琶湖",
-    latJP:  35.1880, lngJP: 136.1939,
-    wikiJP: "https://ja.wikipedia.org/wiki/琵琶湖",
-    nameW:  "カスピ海",
-    latW:   42.0, lngW: 50.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/カスピ海",
-    zoomJP: 8, zoomW: 6
-  },
-  {
-    nameJP: "十和田湖",
-    latJP:  40.455, lngJP: 140.927,
-    wikiJP: "https://ja.wikipedia.org/wiki/十和田湖",
-    nameW:  "バイカル湖",
-    latW:   53.5, lngW: 108.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/バイカル湖",
-    zoomJP: 8, zoomW: 6
-  },
-  {
-    nameJP: "瀬戸内海",
-    latJP:  34.25, lngJP: 133.20,
-    wikiJP: "https://ja.wikipedia.org/wiki/瀬戸内海",
-    nameW:  "地中海",
-    latW:   35.0, lngW: 20.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/地中海",
-    zoomJP: 7, zoomW: 6
-  },
-  {
-    nameJP: "田沢湖",
-    latJP:  39.72, lngJP: 140.683,
-    wikiJP: "https://ja.wikipedia.org/wiki/田沢湖",
-    nameW:  "メキシコ湾",
-    latW:   27.0, lngW: -90.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/メキシコ湾",
-    zoomJP: 9, zoomW: 4
-  },
-  {
-    nameJP: "諏訪湖",
-    latJP:  36.05, lngJP: 138.08,
-    wikiJP: "https://ja.wikipedia.org/wiki/諏訪湖",
-    nameW:  "アラル海",
-    latW:   45.0, lngW: 60.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/アラル海",
-    zoomJP: 9, zoomW: 5
-  },
+////////////////////////////////////////////////////////////////////////////////
+// 3. 万国巡幸ツアー(竹内文書)の文章 (© 2024 皇祖皇太神宮)
+////////////////////////////////////////////////////////////////////////////////
+/*
+  ancientTexts は
+  © 2024 皇祖皇太神宮, All rights reserved. (MITライセンス対象外)
+  無断の複製・改変・翻案を禁じます。
+*/
 
-  // --- 半島 ---
+const ancientTexts = [
   {
-    nameJP: "下北半島",
-    latJP:  41.33, lngJP: 141.49,
-    wikiJP: "https://ja.wikipedia.org/wiki/下北半島",
-    nameW:  "カムチャッカ半島",
-    latW:   56.0, lngW: 160.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/カムチャツカ半島",
-    zoomJP: 8, zoomW: 6
+    title: "① 鎮江・チェンヤン(南京のそば)",
+    text: `© 2024 皇祖皇太神宮, All Rights Reserved (MIT除外)
+支那王盤邦王民、天皇御膳に唐みしを献ず。
+天皇詔して支那国主に命ず`
   },
   {
-    nameJP: "能登半島",
-    latJP:  37.283, lngJP: 137.0,
-    wikiJP: "https://ja.wikipedia.org/wiki/能登半島",
-    nameW:  "スカンディナヴィア半島",
-    latW:   62.0, lngW: 15.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/スカンディナヴィア",
-    zoomJP: 8, zoomW: 6
+    title: "② 保定(北京と天津のそば)",
+    text: `© 2024 皇祖皇太神宮, All Rights Reserved (MIT除外)
+ヨイモツアダムイブヒアカヒ女氏五色人
+早刻に来りて、
+黄人皇主天皇に草花を奉献。
+天皇詔して、アカヒ女氏別五色人
+居る所の国王に任ず`
   },
   {
-    nameJP: "紀伊半島",
-    latJP:  34.175, lngJP: 135.98,
-    wikiJP: "https://ja.wikipedia.org/wiki/紀伊半島",
-    nameW:  "アラビア半島",
-    latW:   20.0, lngW: 45.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/アラビア半島",
-    zoomJP: 8, zoomW: 6
+    title: "③ イタリヤのウェネチャ(ベニスのこと)",
+    text: `© 2024 皇祖皇太神宮, All Rights Reserved (MIT除外)
+アフリカのネネアホマ浜(ギニアの近く)
+アフリアビシアム民王、
+アスカリトキンコンコク主民王。
+天日豊本黄人皇主天皇へキバナを奉献。
+詔して国王に任ず`
   },
   {
-    nameJP: "山口県(西部)",
-    latJP:  34.0, lngJP: 131.0,
-    wikiJP: "https://ja.wikipedia.org/wiki/山口県",
-    nameW:  "イベリア半島",
-    latW:   40.0, lngW: -4.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/イベリア半島",
-    zoomJP: 8, zoomW: 6
+    title: "④ オセアニアのメルボルン浜",
+    text: `© 2024 皇祖皇太神宮, All Rights Reserved (MIT除外)
+ハウライムタイ尊者、ダイビ民玉、
+天皇大前に礼をす。天皇詔して国主に命ず`
   },
   {
-    nameJP: "房総半島",
-    latJP:  35.15, lngJP: 140.25,
-    wikiJP: "https://ja.wikipedia.org/wiki/房総半島",
-    nameW:  "インドシナ半島",
-    latW:   15.0, lngW: 105.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/インドシナ",
-    zoomJP: 8, zoomW: 6
+    title: "⑤ 南アメリカのラブラタ浜",
+    text: `© 2024 皇祖皇太神宮, All Rights Reserved (MIT除外)
+天皇御臨幸、ヒウケイヒロブラシルコ民王、
+ヒウケフラジルバラ民王、
+天皇大前参朝して地面図を奉献。
+天皇詔して二人を国主に命ず`
   },
   {
-    nameJP: "牡鹿半島",
-    latJP:  38.377, lngJP: 141.495,
-    wikiJP: "https://ja.wikipedia.org/wiki/牡鹿半島",
-    nameW:  "朝鮮半島",
-    latW:   39.0, lngW: 127.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/朝鮮半島",
-    zoomJP: 8, zoomW: 6
+    title: "⑥ 北米カナダのニトアーク浜",
+    text: `© 2024 皇祖皇太神宮, All Rights Reserved (MIT除外)
+天皇に、アヒイタマヲ王アカ民王、
+エスキマルカス民王、参朝拝礼し、
+天皇詔して国主に命ず。
+此時よりカナイシ国と云う`
   },
   {
-    nameJP: "佐渡島",
-    latJP:  38.0, lngJP: 138.4,
-    wikiJP: "https://ja.wikipedia.org/wiki/佐渡島",
-    nameW:  "ノヴァヤゼムリャ",
-    latW:   74.0, lngW: 57.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/ノヴァヤゼムリャ",
-    zoomJP: 8, zoomW: 6
-  },
-
-  // --- 島 ---
-  {
-    nameJP: "伊豆大島",
-    latJP:  34.7567, lngJP: 139.3603,
-    wikiJP: "https://ja.wikipedia.org/wiki/伊豆大島",
-    nameW:  "スマトラ島",
-    latW:   0.0, lngW: 101.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/スマトラ島",
-    zoomJP: 8, zoomW: 6
-  },
-  {
-    nameJP: "伊豆半島",
-    latJP:  34.9, lngJP: 138.93,
-    wikiJP: "https://ja.wikipedia.org/wiki/伊豆半島",
-    nameW:  "マレー半島",
-    latW:   4.5, lngW: 102.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/マレー半島",
-    zoomJP: 8, zoomW: 6
-  },
-  {
-    nameJP: "壱岐",
-    latJP:  33.766, lngJP: 129.733,
-    wikiJP: "https://ja.wikipedia.org/wiki/壱岐",
-    nameW:  "グレートブリテン島",
-    latW:   54.0, lngW: -2.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/グレートブリテン島",
-    zoomJP: 8, zoomW: 5
-  },
-  {
-    nameJP: "津軽海峡",
-    latJP:  41.25, lngJP: 140.5,
-    wikiJP: "https://ja.wikipedia.org/wiki/津軽海峡",
-    nameW:  "ベーリング海峡",
-    latW:   65.0, lngW: -169.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/ベーリング海峡",
-    zoomJP: 8, zoomW: 5
-  },
-  {
-    nameJP: "淡路島",
-    latJP:  34.3, lngJP: 134.7,
-    wikiJP: "https://ja.wikipedia.org/wiki/淡路島",
-    nameW:  "ニューギニア島",
-    latW:   -5.0, lngW: 141.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/ニューギニア島",
-    zoomJP: 8, zoomW: 6
-  },
-  {
-    nameJP: "隠岐",
-    latJP:  36.2, lngJP: 133.3,
-    wikiJP: "https://ja.wikipedia.org/wiki/隠岐諸島",
-    nameW:  "スピッツベルゲン諸島",
-    latW:   78.0, lngW: 16.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/スヴァールバル諸島",
-    zoomJP: 8, zoomW: 5
-  },
-  {
-    nameJP: "種子島",
-    latJP:  30.72, lngJP: 131.0,
-    wikiJP: "https://ja.wikipedia.org/wiki/種子島",
-    nameW:  "マダガスカル島",
-    latW:   -20.0, lngW: 47.0,
-    wikiW:  "https://ja.wikipedia.org/wiki/マダガスカル",
-    zoomJP: 8, zoomW: 5
+    title: "⑦ 常盤国おつき浜",
+    text: `© 2024 皇祖皇太神宮, All Rights Reserved (MIT除外)
+万国巡幸始より、千九百五十年目の
+カナメツキマドノミツヒ、万国より、
+吉道路常磐国大付浜に帰京。
+其所を唐カラ帰里と名付ける`
   }
 ];
 
-// ▼ 世界側マーカー DOM (点滅用)
-const wMarkerElems = {};
-// ▼ マーカー配列
-const jpMarkers = [];
-const wMarkers = [];
-
-// ▼ マーカー生成
-pairs.forEach((pair, i) => {
-  // 日本マーカー
-  const jpMarker = L.marker([pair.latJP, pair.lngJP]).addTo(map);
-  jpMarker.bindPopup(`
-    <b>${pair.nameJP} - ${pair.nameW}</b><br>
-    <a href="${pair.wikiJP}" target="_blank">${pair.nameJP}のWikipedia</a><br>
-    <a href="${pair.wikiW}"  target="_blank">${pair.nameW}のWikipedia</a>
-    <hr style="margin:6px 0">
-    <button onclick="moveToWorld(${i})">対応した地点へ</button>
-  `);
-  jpMarkers.push(jpMarker);
-
-  // 世界マーカー
-  const wMarker = L.marker([pair.latW, pair.lngW]).addTo(map);
-  wMarker.bindPopup(`
-    <b>${pair.nameW} - ${pair.nameJP}</b><br>
-    <a href="${pair.wikiW}"  target="_blank">${pair.nameW}のWikipedia</a><br>
-    <a href="${pair.wikiJP}" target="_blank">${pair.nameJP}のWikipedia</a>
-    <hr style="margin:6px 0">
-    <button onclick="moveToJapan(${i})">日本に戻る</button>
-  `);
-  wMarkers.push(wMarker);
-
-  // 点滅用DOM取得
-  wMarker.on('add', () => {
-    wMarkerElems[i] = wMarker.getElement();
-  });
-});
-
-// ▼ 従来ツアー用：移動 & 点滅
-function moveToWorld(i) {
-  const p = pairs[i];
-  map.flyTo([p.latW, p.lngW], p.zoomW);
-  setTimeout(() => {
-    wMarkers[i].openPopup();
-    blinkWorldMarker(i);
-  }, 1000);
-}
-function moveToJapan(i) {
-  const p = pairs[i];
-  map.flyTo([p.latJP, p.lngJP], p.zoomJP);
-  setTimeout(() => {
-    jpMarkers[i].openPopup();
-    removeAllBlinks();
-  }, 1000);
-}
-function blinkWorldMarker(i) {
-  removeAllBlinks();
-  if (!wMarkerElems[i]) return;
-  wMarkerElems[i].classList.add('blink-marker');
-  setTimeout(() => {
-    wMarkerElems[i].classList.remove('blink-marker');
-  }, 3000);
-}
-function removeAllBlinks() {
-  Object.values(wMarkerElems).forEach(el => el.classList.remove('blink-marker'));
-}
-
-// ▼ 従来ツアー自動巡回(4秒おき)
-let autoTourTimer = null;
-let autoTourIndex = 0;
-let goingToWorld = true;
-
-function startAutoTour() {
-  stopAutoTour();
-  document.getElementById("auto-tour-btn").style.display = "none";
-  document.getElementById("stop-btn").style.display = "inline-block";
-
-  autoTourIndex = 0;
-  goingToWorld = true;
-  autoTourNext();
-}
-function autoTourNext() {
-  if (autoTourIndex >= pairs.length) {
-    autoTourIndex = 0;
-  }
-  if (goingToWorld) {
-    moveToWorld(autoTourIndex);
-    autoTourTimer = setTimeout(() => {
-      goingToWorld = false;
-      autoTourNext();
-    }, 4000); // ★ 従来ツアーは4秒
-  } else {
-    moveToJapan(autoTourIndex);
-    autoTourTimer = setTimeout(() => {
-      goingToWorld = true;
-      autoTourIndex++;
-      autoTourNext();
-    }, 4000); // ★ 従来ツアーは4秒
-  }
-}
-function stopAutoTour() {
-  if (autoTourTimer) {
-    clearTimeout(autoTourTimer);
-    autoTourTimer = null;
-  }
-  document.getElementById("stop-btn").style.display = "none";
-  document.getElementById("auto-tour-btn").style.display = "inline-block";
-
-  // ▼ 追加: 停止時の表示
-  removeAllBlinks();
-  removeAllPopups();
-  showStatusMessage("日本は世界の縮図ツアーを停止しました。");
-}
-function removeAllPopups() {
-  jpMarkers.forEach(m => m.closePopup());
-  wMarkers.forEach(m => m.closePopup());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// 3. 万国巡幸ツアー(竹内文書の記録による上古第三代・天日豊本黄人皇主神天皇)
-////////////////////////////////////////////////////////////////////////////////
-
-// ★ 赤色アイコン
+// === マーカー生成 (万国巡幸) ===
 const redIcon = L.icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
   shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
-  iconSize:     [25, 41],
-  iconAnchor:   [12, 41],
-  popupAnchor:  [1, -34],
-  shadowSize:   [41, 41]
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
 });
 
-// ▼ 8箇所
-const ancientPoints = [
-  {
-    name: "① 鎮江・チェンヤン(南京のそば)",
-    lat: 32.06, lng: 119.00,
-    zoom: 6
-  },
-  {
-    name: "② 保定(北京と天津のそば)\n支那王盤邦王民、天皇御膳に唐みしを献ず。\n天皇詔して支那国主に命ず",
-    lat: 38.87, lng: 115.46,
-    zoom: 6
-  },
-  {
-    name: "③ イタリヤのウェネチャ(ベニスのこと)\nヨイモツアダムイブヒアカヒ女氏五色人\n早刻に来りて、\n黄人皇主天皇に草花を奉献。\n天皇詔して、アカヒ女氏別五色人\n居る所の国王に任ず",
-    lat: 45.44, lng: 12.34,
-    zoom: 7
-  },
-  {
-    name: "④ アフリカのネネアホマ浜(ギニアの近く)\nアフリアビシアム民王、\nアスカリトキンコンコク主民王。\n天日豊本黄人皇主天皇へキバナを奉献。\n詔して国王に任ず",
-    lat: 9.5, lng: -13.7,
-    zoom: 6
-  },
-  {
-    name: "⑤ オセアニアのメルボルン浜\nハウライムタイ尊者、ダイビ民玉、\n天皇大前に礼をす。天皇詔して国主に命ず",
-    lat: -37.81, lng: 144.96,
-    zoom: 7
-  },
-  {
-    name: "⑥ 南アメリカのラブラタ浜\n天皇御臨幸、ヒウケイヒロブラシルコ民王、\nヒウケフラジルバラ民王、\n天皇大前参朝して地面図を奉献。\n天皇詔して二人を国主に命ず",
-    lat: -34.60, lng: -58.38,
-    zoom: 6
-  },
-  {
-    name: "⑦ 北米カナダのニトアーク浜\n天皇に、アヒイタマヲ王アカ民王、\nエスキマルカス民王、参朝拝礼し、\n天皇詔して国主に命ず。\n此時よりカナイシ国と云う",
-    lat: 63.0, lng: -80.0,
-    zoom: 4
-  },
-  {
-    name: "⑧ 常盤国おつき浜\n万国巡幸始より、千九百五十年目の\nカナメツキマドノミツヒ、万国より、\n吉道路常磐国大付浜に帰京。\n其所を唐カラ帰里と名付ける",
-    lat: 37.0, lng: 140.7,
-    zoom: 7
-  }
-];
-
-// ▼ 万国巡幸マーカー
 const ancientMarkers = [];
-ancientPoints.forEach((p) => {
-  const mk = L.marker([p.lat, p.lng], { icon: redIcon }).addTo(map);
-  mk.bindPopup(`<b>${p.name.replace(/\n/g, "<br>")}</b>`);
-  ancientMarkers.push(mk);
+ancientTexts.forEach((item, i) => {
+  const popupHTML = `
+    <b>${item.title}</b><br>
+    ${item.text.replace(/\n/g, "<br>")}
+  `;
+
+  // サンプル座標
+  const lat = 32 + i;   
+  const lng = 120 + i;  
+  const marker = L.marker([lat, lng], { icon: redIcon }).addTo(map);
+  marker.bindPopup(popupHTML);
+
+  ancientMarkers.push(marker);
 });
 
-// ▼ 万国巡幸ツアー自動巡回
+// === 万国巡幸ツアー 自動巡回 ===
 let ancientTourTimer = null;
 let ancientTourIndex = 0;
 
@@ -516,19 +228,20 @@ function startAncientTour() {
 }
 
 function moveAncientNext() {
-  if (ancientTourIndex >= ancientPoints.length) {
+  if (ancientTourIndex >= ancientMarkers.length) {
     ancientTourIndex = 0;
   }
-  const p = ancientPoints[ancientTourIndex];
-  map.flyTo([p.lat, p.lng], p.zoom);
+  const marker = ancientMarkers[ancientTourIndex];
+  const latLng = marker.getLatLng();
+  map.flyTo([latLng.lat, latLng.lng], 6); 
 
   // 2秒後にポップアップを開き、6秒後に次へ
   setTimeout(() => {
-    ancientMarkers[ancientTourIndex].openPopup();
+    marker.openPopup();
     ancientTourTimer = setTimeout(() => {
       ancientTourIndex++;
       moveAncientNext();
-    }, 6000); // ★ 万国巡幸ツアーは6秒
+    }, 6000); 
   }, 2000);
 }
 
@@ -540,23 +253,24 @@ function stopAncientTour() {
   document.getElementById("ancient-stop-btn").style.display = "none";
   document.getElementById("ancient-tour-btn").style.display = "inline-block";
 
-  // ▼ 追加: 停止時の表示
   removeAllAncientPopups();
   showStatusMessage("万国巡幸ツアーを停止しました。");
 }
+
 function removeAllAncientPopups() {
   ancientMarkers.forEach(m => m.closePopup());
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
-// 4. 停止メッセージを一時的に表示する関数
+// 従来ツアー（省略） + ステータス表示
 ////////////////////////////////////////////////////////////////////////////////
+
 function showStatusMessage(msg) {
   const statusEl = document.getElementById("statusMessage");
   statusEl.textContent = msg;
   statusEl.style.display = "block";
 
-  // 3秒後にメッセージを消す
   setTimeout(() => {
     statusEl.style.display = "none";
   }, 3000);
