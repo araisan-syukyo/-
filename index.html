@@ -32,7 +32,7 @@
       display: flex;
       flex-direction: column; /* タイトル＋メッセージを上段、ボタンを下段 */
       gap: 0.5rem;
-      padding: 0.5rem 1rem; /* 上下の余白を少し減らして隠れないように */
+      padding: 0.5rem 1rem;
     }
 
     /* ===== ヘッダー上段（タイトル＋ファンタジー文言） ===== */
@@ -50,7 +50,7 @@
     .fantasy-msg {
       font-size: 0.95rem;
       color: #666;
-      font-weight: bold; /* 太字にして目立たせる */
+      font-weight: bold; /* 太字で目立たせる */
     }
 
     /* ===== ヘッダー下段（ボタンエリア） ===== */
@@ -75,8 +75,7 @@
     /* ===== 地図本体 ===== */
     #map {
       width: 100%;
-      /* ヘッダーの高さ分(約120px)を下げると余裕ができます */
-      height: calc(100% - 120px);
+      height: calc(100% - 120px); /* ヘッダーが2段になった分(約120px)を確保 */
       margin-top: 120px;
     }
 
@@ -424,7 +423,9 @@ let autoTourIndex = 0;
 let goingToWorld = true;
 
 function startAutoTour() {
-  stopAncientTour(); // 他のツアー(万国巡幸ツアー)を停止
+  // 万国巡幸ツアーを停止（併用しないように）
+  stopAncientTour();
+
   document.getElementById("auto-tour-btn").style.display = "none";
   document.getElementById("stop-btn").style.display = "inline-block";
 
@@ -441,7 +442,7 @@ function autoTourNext() {
     autoTourTimer = setTimeout(() => {
       goingToWorld = false;
       autoTourNext();
-    }, 4000); 
+    }, 4000);
   } else {
     moveToJapan(autoTourIndex);
     autoTourTimer = setTimeout(() => {
@@ -465,10 +466,10 @@ function stopAutoTour() {
 
 ////////////////////////////////////////////////////////////////////////////////
 // 3. 万国巡幸ツアー（神代の万国史：竹内文書）
-//    出典：「神代（かみよ）の万国史」
-//    上古第三代・天日豊本黄人皇主神天皇の万国巡幸に基づく。
-//    著作権などの権利保護のため、本コードを無断で複製・改変することを禁じます。
 ////////////////////////////////////////////////////////////////////////////////
+//  - 出典：「神代（かみよ）の万国史」
+//  - 上古第三代・天日豊本黄人皇主神天皇の万国巡幸に基づく。
+//  - 著作権などの権利保護のため、本コードを無断で複製・改変することを禁じます。
 
 // ★ 赤色アイコン
 const redIcon = L.icon({
@@ -537,8 +538,9 @@ let ancientTourTimer = null;
 let ancientTourIndex = 0;
 
 function startAncientTour() {
-  // 他のツアー(従来ツアー)を停止
+  // 従来ツアーを停止
   stopAutoTour();
+
   document.getElementById("ancient-tour-btn").style.display = "none";
   document.getElementById("ancient-stop-btn").style.display = "inline-block";
 
@@ -556,7 +558,6 @@ function moveAncientNext() {
   // 2秒後にポップアップを開き、6秒後に次へ
   setTimeout(() => {
     ancientMarkers[ancientTourIndex].openPopup();
-    // 4秒後に次のポイントへ
     ancientTourTimer = setTimeout(() => {
       ancientTourIndex++;
       moveAncientNext();
@@ -573,6 +574,10 @@ function stopAncientTour() {
   document.getElementById("ancient-tour-btn").style.display = "inline-block";
 
   removeAllAncientPopups();
+
+  // ★ 停止時にマーカーの点滅やポップアップも閉じる
+  removeAllBlinks();
+  removeAllPopups();
 }
 
 function removeAllAncientPopups() {
