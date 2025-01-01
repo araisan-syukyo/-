@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
   <style>
+    /* 全画面表示＆グラデーション背景 */
     html, body {
       margin: 0;
       padding: 0;
@@ -18,13 +19,13 @@
       font-family: sans-serif;
       background: linear-gradient(160deg, #edf7fa 0%, #bee8fa 100%);
     }
+    /* タイトルヘッダー */
     header {
       position: fixed;
       top: 0;
       width: 100%;
       display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-start;
+      justify-content: space-between;
       align-items: center;
       padding: 1rem;
       background: rgba(255, 255, 255, 0.95);
@@ -32,14 +33,15 @@
       z-index: 999;
     }
     header h1 {
-      margin: 0 1rem 0 0;
+      margin: 0;
       font-size: 1.6rem;
       color: #333;
-      white-space: nowrap;
+    }
+    .btn-area {
+      display: flex;
+      gap: 0.5rem;
     }
     .tour-btn {
-      margin-right: 0.5rem;
-      margin-top: 0.5rem;
       padding: 0.5rem 1rem;
       border: none;
       border-radius: 4px;
@@ -52,11 +54,13 @@
     .tour-btn:hover {
       background-color: #42b0ec;
     }
+    /* 地図本体 */
     #map {
       width: 100%;
       height: calc(100% - 70px);
       margin-top: 70px;
     }
+    /* 点滅アニメーション */
     @keyframes markerBlink {
       0%   { transform: scale(1);   filter: brightness(1); }
       50%  { transform: scale(1.3); filter: brightness(2); }
@@ -71,18 +75,19 @@
 <body>
 <header>
   <h1>日本は世界の縮図？</h1>
+  <div class="btn-area">
+    <!-- 従来ツアー（日本⇔世界）ボタン -->
+    <button id="auto-tour-btn" class="tour-btn" onclick="startAutoTour()">自動ツアー</button>
+    <button id="stop-btn" class="tour-btn" style="display:none;" onclick="stopAutoTour()">停止</button>
 
-  <!-- 従来ツアー系ボタン -->
-  <button id="auto-tour-btn" class="tour-btn" onclick="startAutoTour()">自動ツアー開始</button>
-  <button id="stop-btn" class="tour-btn" style="display:none;" onclick="stopAutoTour()">停止</button>
-
-  <!-- 万国巡幸ツアー系ボタン -->
-  <button id="ancient-tour-btn" class="tour-btn" onclick="startAncientAutoTour()">
-    竹内文書の記録による万国巡幸ツアー開始
-  </button>
-  <button id="ancient-stop-btn" class="tour-btn" style="display:none;" onclick="stopAncientAutoTour()">
-    停止
-  </button>
+    <!-- 万国巡幸ツアーボタン -->
+    <button id="ancient-tour-btn" class="tour-btn" onclick="startAncientTour()">
+      万国巡幸ツアー開始
+    </button>
+    <button id="ancient-stop-btn" class="tour-btn" style="display:none;" onclick="stopAncientTour()">
+      停止
+    </button>
+  </div>
 </header>
 
 <div id="map"></div>
@@ -91,7 +96,7 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
 ////////////////////////////////////////////////////////////////////////////////
-// 1. 地図の初期化 (共通)
+// 1. 地図の初期化
 ////////////////////////////////////////////////////////////////////////////////
 const map = L.map("map").setView([36, 138], 5);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -99,7 +104,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 ////////////////////////////////////////////////////////////////////////////////
-// 2. (従来) 日本は世界の縮図データ
+// 2. 「日本は世界の縮図？」ペア関係データ（全て）
 ////////////////////////////////////////////////////////////////////////////////
 const pairs = [
   // --- 大陸・地方 ---
@@ -139,6 +144,7 @@ const pairs = [
     wikiW:  "https://ja.wikipedia.org/wiki/アフリカ",
     zoomJP: 7, zoomW: 5
   },
+
   // --- 湖・海 ---
   {
     nameJP: "琵琶湖",
@@ -185,6 +191,7 @@ const pairs = [
     wikiW:  "https://ja.wikipedia.org/wiki/アラル海",
     zoomJP: 9, zoomW: 5
   },
+
   // --- 半島 ---
   {
     nameJP: "下北半島",
@@ -249,6 +256,7 @@ const pairs = [
     wikiW:  "https://ja.wikipedia.org/wiki/ノヴァヤゼムリャ",
     zoomJP: 8, zoomW: 6
   },
+
   // --- 島 ---
   {
     nameJP: "伊豆大島",
@@ -315,10 +323,11 @@ const pairs = [
   }
 ];
 
-// ▼ 従来ツアー用マーカー格納
+// ▼ 世界側マーカー DOM (点滅用)
+const wMarkerElems = {};
+// ▼ マーカー配列
 const jpMarkers = [];
 const wMarkers = [];
-const wMarkerElems = {}; // 世界側マーカーのDOM要素(点滅用)
 
 // ▼ マーカー生成
 pairs.forEach((pair, i) => {
@@ -344,12 +353,13 @@ pairs.forEach((pair, i) => {
   `);
   wMarkers.push(wMarker);
 
+  // 点滅用DOM取得
   wMarker.on('add', () => {
     wMarkerElems[i] = wMarker.getElement();
   });
 });
 
-// ▼ 従来ツアーの移動 & 点滅
+// ▼ 従来ツアー用：移動 & 点滅
 function moveToWorld(i) {
   const p = pairs[i];
   map.flyTo([p.latW, p.lngW], p.zoomW);
@@ -371,14 +381,14 @@ function blinkWorldMarker(i) {
   if (!wMarkerElems[i]) return;
   wMarkerElems[i].classList.add('blink-marker');
   setTimeout(() => {
-    wMarkerElems[i]?.classList.remove('blink-marker');
+    wMarkerElems[i].classList.remove('blink-marker');
   }, 3000);
 }
 function removeAllBlinks() {
   Object.values(wMarkerElems).forEach(el => el.classList.remove('blink-marker'));
 }
 
-// ▼ 従来ツアー自動巡回
+// ▼ 従来ツアー自動巡回(4秒おき)
 let autoTourTimer = null;
 let autoTourIndex = 0;
 let goingToWorld = true;
@@ -421,10 +431,10 @@ function stopAutoTour() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// 3. 「竹内文書の記録による上古第3代・天日豊本黄人皇主神天皇の万国巡幸ツアー」
+// 3. 万国巡幸ツアー (竹内文書の記録による上古第三代・天日豊本黄人皇主神天皇)
 ////////////////////////////////////////////////////////////////////////////////
 
-// ★ 赤色アイコンを定義（Leafletカラーアイコンを利用）
+// ★ 赤色アイコン
 const redIcon = L.icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
   shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
@@ -434,108 +444,97 @@ const redIcon = L.icon({
   shadowSize:   [41, 41]
 });
 
-// 万国巡幸の地点データ
-const ancientPairs = [
+// ▼ 9箇所 (「アヒヲマアクリと命名」を除去し、「カナシイ国と命名」のみ残す)
+const ancientPoints = [
   {
-    name: "①鎮江・チェンヤン(南京のそば)",
-    desc: "中国・南京付近",
+    name: "① 鎮江チェンヤン(南京のそば)",
     lat: 32.06, lng: 119.00,
     zoom: 6
   },
   {
-    name: "②保定・バオチン(北京と天津のそば)",
-    desc: "中国・河北省保定付近",
+    name: "② 保定バオチン(北京と天津のそば)",
     lat: 38.87, lng: 115.46,
     zoom: 6
   },
   {
-    name: "③イタリヤのウェネチャ(ベニス)",
-    desc: "イタリア・ヴェネツィア",
+    name: "③ イタリヤのウェネチャ(ベニスのこと)",
     lat: 45.44, lng: 12.34,
     zoom: 7
   },
   {
-    name: "④アフリカのネネアホマ浜(ギニア近く)",
-    desc: "ギニアの近く(西アフリカ)",
+    name: "④ アフリカのネネアホマ浜(ギニアの近く)",
     lat: 9.5, lng: -13.7,
     zoom: 6
   },
   {
-    name: "⑤オセアニアのメルボルン浜",
-    desc: "オーストラリア・メルボルン",
+    name: "⑤ オセアニアのメルボルン浜",
     lat: -37.81, lng: 144.96,
     zoom: 7
   },
   {
-    name: "⑥南アメリカのラブラタ浜",
-    desc: "リオ・デ・ラ・プラタ河口(ブエノスアイレス)",
+    name: "⑥ 南アメリカのラブラタ浜",
     lat: -34.60, lng: -58.38,
     zoom: 6
   },
   {
-    name: "⑦北米カナダのニトアーク浜",
-    desc: "アヒヲマアクリ/カナシイ国と命名",
+    name: "⑦ 北米カナダのニトアーク浜(カナシイ国と命名)",
     lat: 63.0, lng: -80.0,
     zoom: 4
   },
   {
-    name: "⑧常盤国おつき浜",
-    desc: "日本・東北(茨城/福島付近)",
+    name: "⑧ 常盤国おつき浜",
     lat: 37.0, lng: 140.7,
     zoom: 7
   },
   {
-    name: "⑨富山の天神人祖一神宮",
-    desc: "日本・富山付近",
+    name: "⑨ 富山の天神人祖一神宮",
     lat: 36.70, lng: 137.21,
     zoom: 8
   }
 ];
 
-// 万国巡幸用マーカー
+// ▼ 万国巡幸マーカー
 const ancientMarkers = [];
-ancientPairs.forEach((p) => {
+ancientPoints.forEach((p) => {
   const mk = L.marker([p.lat, p.lng], { icon: redIcon }).addTo(map);
-  mk.bindPopup(`
-    <b>${p.name}</b><br>${p.desc}
-  `);
+  // ポップアップは地名のみ
+  mk.bindPopup(`<b>${p.name}</b>`);
   ancientMarkers.push(mk);
 });
 
-// 万国巡幸ツアー自動巡回
-let ancientAutoTourTimer = null;
-let ancientAutoTourIndex = 0;
+// ▼ 万国巡幸ツアー自動巡回
+let ancientTourTimer = null;
+let ancientTourIndex = 0;
 
-function startAncientAutoTour() {
-  stopAncientAutoTour(); // リセット
+function startAncientTour() {
+  stopAncientTour(); // リセット
   document.getElementById("ancient-tour-btn").style.display = "none";
   document.getElementById("ancient-stop-btn").style.display = "inline-block";
 
-  ancientAutoTourIndex = 0;
-  moveAncientPoint();
+  ancientTourIndex = 0;
+  moveAncientNext();
 }
 
-function moveAncientPoint() {
-  if (ancientAutoTourIndex >= ancientPairs.length) {
-    ancientAutoTourIndex = 0;
+function moveAncientNext() {
+  if (ancientTourIndex >= ancientPoints.length) {
+    ancientTourIndex = 0;
   }
-  const p = ancientPairs[ancientAutoTourIndex];
+  const p = ancientPoints[ancientTourIndex];
   map.flyTo([p.lat, p.lng], p.zoom);
 
   setTimeout(() => {
-    ancientMarkers[ancientAutoTourIndex].openPopup();
-    // 次の地点へ
-    ancientAutoTourTimer = setTimeout(() => {
-      ancientAutoTourIndex++;
-      moveAncientPoint();
+    ancientMarkers[ancientTourIndex].openPopup();
+    ancientTourTimer = setTimeout(() => {
+      ancientTourIndex++;
+      moveAncientNext();
     }, 4000);
   }, 2000);
 }
 
-function stopAncientAutoTour() {
-  if (ancientAutoTourTimer) {
-    clearTimeout(ancientAutoTourTimer);
-    ancientAutoTourTimer = null;
+function stopAncientTour() {
+  if (ancientTourTimer) {
+    clearTimeout(ancientTourTimer);
+    ancientTourTimer = null;
   }
   document.getElementById("ancient-stop-btn").style.display = "none";
   document.getElementById("ancient-tour-btn").style.display = "inline-block";
