@@ -13,51 +13,35 @@
   <style>
     /* 全画面表示＆グラデーション背景 */
     html, body {
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       height: 100%;
       font-family: sans-serif;
       background: linear-gradient(160deg, #edf7fa 0%, #bee8fa 100%);
     }
     /* タイトルヘッダー */
     header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      z-index: 999;
+      position: fixed; top: 0; width: 100%;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem; background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 999;
     }
     header h1 {
-      margin: 0;
-      font-size: 1.6rem;
-      color: #333;
+      margin: 0; font-size: 1.6rem; color: #333;
     }
     .btn-area {
-      display: flex;
-      gap: 0.5rem;
+      display: flex; gap: 0.5rem;
     }
     .tour-btn {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 4px;
-      background-color: #67c0f5;
-      color: #fff;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
+      padding: 0.5rem 1rem; border: none; border-radius: 4px;
+      background-color: #67c0f5; color: #fff; font-size: 0.9rem;
+      cursor: pointer; transition: background-color 0.3s ease;
     }
     .tour-btn:hover {
       background-color: #42b0ec;
     }
     /* 地図本体 */
     #map {
-      width: 100%;
-      height: calc(100% - 70px);
+      width: 100%; height: calc(100% - 70px);
       margin-top: 70px;
     }
     /* 点滅アニメーション */
@@ -68,6 +52,18 @@
     }
     .leaflet-marker-pane .blink-marker {
       animation: markerBlink 1s ease-in-out infinite;
+    }
+
+    /* 停止メッセージ等を表示する簡易ステータス用 */
+    #statusMessage {
+      position: fixed;
+      top: 120px; right: 10px;
+      padding: 8px 16px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      border-radius: 4px;
+      z-index: 9999;
+      display: none; /* 初期は非表示 */
     }
   </style>
 </head>
@@ -91,6 +87,7 @@
 </header>
 
 <div id="map"></div>
+<div id="statusMessage"></div>
 
 <!-- LeafletのJS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -428,6 +425,15 @@ function stopAutoTour() {
   }
   document.getElementById("stop-btn").style.display = "none";
   document.getElementById("auto-tour-btn").style.display = "inline-block";
+
+  // ▼ 追加: 停止時の表示
+  removeAllBlinks();
+  removeAllPopups();
+  showStatusMessage("日本は世界の縮図ツアーを停止しました。");
+}
+function removeAllPopups() {
+  jpMarkers.forEach(m => m.closePopup());
+  wMarkers.forEach(m => m.closePopup());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -444,7 +450,7 @@ const redIcon = L.icon({
   shadowSize:   [41, 41]
 });
 
-// ▼ 8箇所 (改行を \n にして文字列エラー回避。「アヒヲマアクリと命名」は削除)
+// ▼ 8箇所
 const ancientPoints = [
   {
     name: "① 鎮江・チェンヤン(南京のそば)",
@@ -492,7 +498,6 @@ const ancientPoints = [
 const ancientMarkers = [];
 ancientPoints.forEach((p) => {
   const mk = L.marker([p.lat, p.lng], { icon: redIcon }).addTo(map);
-  // ポップアップを、複数行対応の name 文字列表示 (改行があればそのまま表示される)
   mk.bindPopup(`<b>${p.name.replace(/\n/g, "<br>")}</b>`);
   ancientMarkers.push(mk);
 });
@@ -502,7 +507,7 @@ let ancientTourTimer = null;
 let ancientTourIndex = 0;
 
 function startAncientTour() {
-  stopAncientTour(); // リセット
+  stopAncientTour();
   document.getElementById("ancient-tour-btn").style.display = "none";
   document.getElementById("ancient-stop-btn").style.display = "inline-block";
 
@@ -534,6 +539,27 @@ function stopAncientTour() {
   }
   document.getElementById("ancient-stop-btn").style.display = "none";
   document.getElementById("ancient-tour-btn").style.display = "inline-block";
+
+  // ▼ 追加: 停止時の表示
+  removeAllAncientPopups();
+  showStatusMessage("万国巡幸ツアーを停止しました。");
+}
+function removeAllAncientPopups() {
+  ancientMarkers.forEach(m => m.closePopup());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// 4. 停止メッセージを一時的に表示する関数
+////////////////////////////////////////////////////////////////////////////////
+function showStatusMessage(msg) {
+  const statusEl = document.getElementById("statusMessage");
+  statusEl.textContent = msg;
+  statusEl.style.display = "block";
+
+  // 3秒後にメッセージを消す
+  setTimeout(() => {
+    statusEl.style.display = "none";
+  }, 3000);
 }
 </script>
 </body>
