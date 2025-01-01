@@ -53,16 +53,6 @@
     .leaflet-marker-pane .blink-marker {
       animation: markerBlink 1s ease-in-out infinite;
     }
-    /* 停止メッセージ等を表示する簡易ステータス用 */
-    #statusMessage {
-      position: fixed; top: 120px; right: 10px;
-      padding: 8px 16px;
-      background: rgba(0,0,0,0.7);
-      color: #fff;
-      border-radius: 4px;
-      z-index: 9999;
-      display: none; /* 初期は非表示 */
-    }
   </style>
 </head>
 
@@ -74,7 +64,7 @@
     <button id="auto-tour-btn" class="tour-btn" onclick="startAutoTour()">自動ツアー開始</button>
     <button id="stop-btn" class="tour-btn" style="display:none;" onclick="stopAutoTour()">自動ツアー停止</button>
 
-    <!-- 万国巡幸ツアーボタン(改名) -->
+    <!-- 万国巡幸ツアーボタン -->
     <button id="ancient-tour-btn" class="tour-btn" onclick="startAncientTour()">
       万国巡幸ツアー 上古第三代・天日豊本黄人皇主神天皇の万国巡幸に基づく
     </button>
@@ -84,8 +74,9 @@
   </div>
 </header>
 
+<!-- ここで「停止メッセージ」を表示するための要素は削除 -->
+
 <div id="map"></div>
-<div id="statusMessage"></div>
 
 <!-- LeafletのJS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -436,7 +427,7 @@ function stopAutoTour() {
 
   removeAllBlinks();
   removeAllPopups();
-  showStatusMessage("日本は世界の縮図ツアーを停止しました。");
+  // 停止時のメッセージ表示を削除 (showStatusMessage呼び出し削除)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -550,25 +541,11 @@ function stopAncientTour() {
   document.getElementById("ancient-tour-btn").style.display = "inline-block";
 
   removeAllAncientPopups();
-  showStatusMessage("万国巡幸ツアーを停止しました。");
+  // 停止時のメッセージ表示を削除 (showStatusMessage呼び出し削除)
 }
 
 function removeAllAncientPopups() {
   ancientMarkers.forEach(m => m.closePopup());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// 4. 停止メッセージを一時的に表示する関数
-////////////////////////////////////////////////////////////////////////////////
-function showStatusMessage(msg) {
-  const statusEl = document.getElementById("statusMessage");
-  statusEl.textContent = msg;
-  statusEl.style.display = "block";
-
-  // 3秒後にメッセージを消す
-  setTimeout(() => {
-    statusEl.style.display = "none";
-  }, 3000);
 }
 </script>
 </body>
