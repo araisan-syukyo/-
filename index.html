@@ -78,6 +78,7 @@
 
 <!-- LeafletのJS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <script>
 ////////////////////////////////////////////////////////////////////////////////
 // 1. 地図の初期化
@@ -382,19 +383,14 @@ let autoTourIndex = 0;
 let goingToWorld = true;
 
 function startAutoTour() {
-  // 他のツアー(万国巡幸ツアー)を停止
-  stopAncientTour();
-
-  // ボタンの表示切り替え
+  stopAncientTour(); // 他のツアー(万国巡幸ツアー)を停止
   document.getElementById("auto-tour-btn").style.display = "none";
   document.getElementById("stop-btn").style.display = "inline-block";
 
-  // インデックス初期化
   autoTourIndex = 0;
   goingToWorld = true;
   autoTourNext();
 }
-
 function autoTourNext() {
   if (autoTourIndex >= pairs.length) {
     autoTourIndex = 0;
@@ -414,7 +410,6 @@ function autoTourNext() {
     }, 4000);
   }
 }
-
 function stopAutoTour() {
   if (autoTourTimer) {
     clearTimeout(autoTourTimer);
@@ -444,9 +439,7 @@ const redIcon = L.icon({
   shadowSize:   [41, 41]
 });
 
-// ▼ 万国巡幸(竹内文書)の巡幸地リスト
-const <script>
-// ▼ 万国巡幸(竹内文書)の巡幸地リスト（文語風に書き直し）
+// ▼ 万国巡幸(竹内文書)の巡幸地リスト（文語風）
 const ancientPoints = [
   {
     name: "① 鎮江・チェンヤン（南京ノ辺）",
@@ -474,13 +467,13 @@ const ancientPoints = [
     zoom: 7
   },
   {
-    name: "⑥ 南アメリカノラブラタ浜\n天皇御臨幸、ヒウケイヒロブラシルコ民王、ヒウケフラジルバラ民王、\n天皇ノ御前ニ参朝シテ地面図ヲ奉ル。\n天皇詔シテ、両名ヲ国主ト為ス。",
+    name: "⑥ 南アメリカノラブラタ浜\n天皇御臨幸、ヒウケイヒロブラシルコ民王、\nヒウケフラジルバラ民王、\n天皇ノ御前ニ参朝シテ地面図ヲ奉ル。\n天皇詔シテ、両名ヲ国主ト為ス。",
     lat: -34.60, lng: -58.38,
     zoom: 6
   },
   {
     // 実在するラブラドール地方ナイン付近に設定
-    name: "⑦ 北米カナダノニトアーク浜\n天皇ニ、アヒイタマヲ王アカ民王、エスキマルカス民王、参朝拝礼ス。\n天皇詔シテ国主ト為ス。\n此時ヨリカナイシ国ト云フ。",
+    name: "⑦ 北米カナダノニトアーク浜\n天皇ニ、アヒイタマヲ王アカ民王、\nエスキマルカス民王、参朝拝礼ス。\n天皇詔シテ国主ト為ス。\n此時ヨリカナイシ国ト云フ。",
     lat: 56.54, lng: -61.69,
     zoom: 6
   },
@@ -504,10 +497,7 @@ let ancientTourTimer = null;
 let ancientTourIndex = 0;
 
 function startAncientTour() {
-  // 他のツアー(自動ツアー)を停止
-  stopAutoTour();
-
-  // ボタンの表示切り替え
+  stopAutoTour(); // 他のツアー(自動ツアー)を停止
   document.getElementById("ancient-tour-btn").style.display = "none";
   document.getElementById("ancient-stop-btn").style.display = "inline-block";
 
