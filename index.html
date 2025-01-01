@@ -39,6 +39,20 @@
     .tour-btn:hover {
       background-color: #42b0ec;
     }
+
+    /* ★ 追加: 文言のスタイル */
+    .fantasy-message {
+      position: fixed;
+      top: 70px; /* ヘッダーの高さ(70px)ぶん下げる */
+      width: 100%;
+      text-align: center;
+      font-size: 1rem;
+      color: #666;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 0.5rem 0;
+      z-index: 998; /* ヘッダー(999)より一段下 */
+    }
+
     /* 地図本体 */
     #map {
       width: 100%; height: calc(100% - 70px);
@@ -73,6 +87,11 @@
     </button>
   </div>
 </header>
+
+<!-- ★ 追加: 「ファンタジーとしてお楽しみ下さい」要素 -->
+<div class="fantasy-message">
+  ファンタジーとしてお楽しみ下さい
+</div>
 
 <div id="map"></div>
 
