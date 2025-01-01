@@ -388,7 +388,7 @@ function removeAllBlinks() {
   Object.values(wMarkerElems).forEach(el => el.classList.remove('blink-marker'));
 }
 
-// ▼ 従来ツアー自動巡回(5秒おき)
+// ▼ 従来ツアー自動巡回(4秒おき)
 let autoTourTimer = null;
 let autoTourIndex = 0;
 let goingToWorld = true;
@@ -411,14 +411,14 @@ function autoTourNext() {
     autoTourTimer = setTimeout(() => {
       goingToWorld = false;
       autoTourNext();
-    }, 4000);
+    }, 4000); // ★ 従来ツアーは4秒
   } else {
     moveToJapan(autoTourIndex);
     autoTourTimer = setTimeout(() => {
       goingToWorld = true;
       autoTourIndex++;
       autoTourNext();
-    }, 4000);
+    }, 4000); // ★ 従来ツアーは4秒
   }
 }
 function stopAutoTour() {
@@ -517,13 +517,13 @@ function moveAncientNext() {
   const p = ancientPoints[ancientTourIndex];
   map.flyTo([p.lat, p.lng], p.zoom);
 
+  // 2秒後にポップアップを開き、6秒後に次へ
   setTimeout(() => {
-    // 複数行を <br> に置き換えた上で表示
     ancientMarkers[ancientTourIndex].openPopup();
     ancientTourTimer = setTimeout(() => {
       ancientTourIndex++;
       moveAncientNext();
-    }, 4000);
+    }, 6000); // ★ 万国巡幸ツアーは6秒
   }, 2000);
 }
 
