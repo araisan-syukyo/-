@@ -53,11 +53,9 @@
     .leaflet-marker-pane .blink-marker {
       animation: markerBlink 1s ease-in-out infinite;
     }
-
     /* 停止メッセージ等を表示する簡易ステータス用 */
     #statusMessage {
-      position: fixed;
-      top: 120px; right: 10px;
+      position: fixed; top: 120px; right: 10px;
       padding: 8px 16px;
       background: rgba(0,0,0,0.7);
       color: #fff;
@@ -73,15 +71,15 @@
   <h1>日本は世界の縮図？</h1>
   <div class="btn-area">
     <!-- 従来ツアー（日本⇔世界）ボタン -->
-    <button id="auto-tour-btn" class="tour-btn" onclick="startAutoTour()">自動ツアー</button>
-    <button id="stop-btn" class="tour-btn" style="display:none;" onclick="stopAutoTour()">停止</button>
+    <button id="auto-tour-btn" class="tour-btn" onclick="startAutoTour()">自動ツアー開始</button>
+    <button id="stop-btn" class="tour-btn" style="display:none;" onclick="stopAutoTour()">自動ツアー停止</button>
 
-    <!-- 万国巡幸ツアーボタン -->
+    <!-- 万国巡幸ツアーボタン(改名) -->
     <button id="ancient-tour-btn" class="tour-btn" onclick="startAncientTour()">
-      万国巡幸ツアー(竹内文書)
+      万国巡幸ツアー 上古第三代・天日豊本黄人皇主神天皇の万国巡幸に基づく
     </button>
     <button id="ancient-stop-btn" class="tour-btn" style="display:none;" onclick="stopAncientTour()">
-      停止
+      万国巡幸ツアー停止
     </button>
   </div>
 </header>
@@ -91,7 +89,6 @@
 
 <!-- LeafletのJS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <script>
 ////////////////////////////////////////////////////////////////////////////////
 // 1. 地図の初期化
@@ -102,7 +99,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 ////////////////////////////////////////////////////////////////////////////////
-// 2. 「日本は世界の縮図？」ペア関係データ（全て）
+// 2. 「日本は世界の縮図？」ペア関係データ
 ////////////////////////////////////////////////////////////////////////////////
 const pairs = [
   // --- 大陸・地方 ---
@@ -142,7 +139,6 @@ const pairs = [
     wikiW:  "https://ja.wikipedia.org/wiki/アフリカ",
     zoomJP: 7, zoomW: 5
   },
-
   // --- 湖・海 ---
   {
     nameJP: "琵琶湖",
@@ -189,7 +185,6 @@ const pairs = [
     wikiW:  "https://ja.wikipedia.org/wiki/アラル海",
     zoomJP: 9, zoomW: 5
   },
-
   // --- 半島 ---
   {
     nameJP: "下北半島",
@@ -254,7 +249,6 @@ const pairs = [
     wikiW:  "https://ja.wikipedia.org/wiki/ノヴァヤゼムリャ",
     zoomJP: 8, zoomW: 6
   },
-
   // --- 島 ---
   {
     nameJP: "伊豆大島",
@@ -357,7 +351,7 @@ pairs.forEach((pair, i) => {
   });
 });
 
-// ▼ 従来ツアー用：移動 & 点滅
+// ▼ 従来ツアー：移動 & 点滅
 function moveToWorld(i) {
   const p = pairs[i];
   map.flyTo([p.latW, p.lngW], p.zoomW);
@@ -386,20 +380,32 @@ function removeAllBlinks() {
   Object.values(wMarkerElems).forEach(el => el.classList.remove('blink-marker'));
 }
 
-// ▼ 従来ツアー自動巡回(4秒おき)
+function removeAllPopups() {
+  jpMarkers.forEach(m => m.closePopup());
+  wMarkers.forEach(m => m.closePopup());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// 従来ツアー 自動巡回
+////////////////////////////////////////////////////////////////////////////////
 let autoTourTimer = null;
 let autoTourIndex = 0;
 let goingToWorld = true;
 
 function startAutoTour() {
-  stopAutoTour();
+  // 他のツアー(万国巡幸ツアー)を停止
+  stopAncientTour();
+
+  // ボタンの表示切り替え
   document.getElementById("auto-tour-btn").style.display = "none";
   document.getElementById("stop-btn").style.display = "inline-block";
 
+  // インデックス初期化
   autoTourIndex = 0;
   goingToWorld = true;
   autoTourNext();
 }
+
 function autoTourNext() {
   if (autoTourIndex >= pairs.length) {
     autoTourIndex = 0;
@@ -409,7 +415,7 @@ function autoTourNext() {
     autoTourTimer = setTimeout(() => {
       goingToWorld = false;
       autoTourNext();
-    }, 4000);
+    }, 4000); 
   } else {
     moveToJapan(autoTourIndex);
     autoTourTimer = setTimeout(() => {
@@ -419,6 +425,7 @@ function autoTourNext() {
     }, 4000);
   }
 }
+
 function stopAutoTour() {
   if (autoTourTimer) {
     clearTimeout(autoTourTimer);
@@ -427,20 +434,15 @@ function stopAutoTour() {
   document.getElementById("stop-btn").style.display = "none";
   document.getElementById("auto-tour-btn").style.display = "inline-block";
 
-  // ▼ 追加: 停止時の表示
   removeAllBlinks();
   removeAllPopups();
   showStatusMessage("日本は世界の縮図ツアーを停止しました。");
 }
-function removeAllPopups() {
-  jpMarkers.forEach(m => m.closePopup());
-  wMarkers.forEach(m => m.closePopup());
-}
 
 ////////////////////////////////////////////////////////////////////////////////
-// 3. 万国巡幸ツアー
-//    出典：「神代（かみよ）の万国史」（竹内文書）
-//    上古第三代・天日豊本黄人皇主神天皇の万国巡幸に基づく記録。
+// 3. 万国巡幸ツアー（神代の万国史：竹内文書）
+//    出典：「神代（かみよ）の万国史」
+//    上古第三代・天日豊本黄人皇主神天皇の万国巡幸に基づく。
 //    著作権などの権利保護のため、本コードを無断で複製・改変することを禁じます。
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -454,7 +456,7 @@ const redIcon = L.icon({
   shadowSize:   [41, 41]
 });
 
-// ▼ 万国巡幸の巡幸地リスト
+// ▼ 万国巡幸(竹内文書)の巡幸地リスト
 const ancientPoints = [
   {
     name: "① 鎮江・チェンヤン(南京のそば)",
@@ -511,7 +513,10 @@ let ancientTourTimer = null;
 let ancientTourIndex = 0;
 
 function startAncientTour() {
-  stopAncientTour();
+  // 他のツアー(自動ツアー)を停止
+  stopAutoTour();
+
+  // ボタンの表示切り替え
   document.getElementById("ancient-tour-btn").style.display = "none";
   document.getElementById("ancient-stop-btn").style.display = "inline-block";
 
@@ -544,10 +549,10 @@ function stopAncientTour() {
   document.getElementById("ancient-stop-btn").style.display = "none";
   document.getElementById("ancient-tour-btn").style.display = "inline-block";
 
-  // ▼ 追加: 停止時の表示
   removeAllAncientPopups();
   showStatusMessage("万国巡幸ツアーを停止しました。");
 }
+
 function removeAllAncientPopups() {
   ancientMarkers.forEach(m => m.closePopup());
 }
