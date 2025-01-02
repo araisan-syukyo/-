@@ -76,13 +76,17 @@
     /* ===== 地図本体 ===== */
     #map {
       width: 100%;
+      /* ヘッダーが約 140pxぶん場所を取るので、その下に全画面表示 */
       height: calc(100% - 140px);
       margin-top: 140px; /* ヘッダーの高さと合わせる */
     }
 
-    /* ===== Leafletコントロール（＋−）の位置をヘッダー下へずらす ===== */
+    /* 
+      ===== Leafletコントロール（＋−）の位置をさらに下へずらす =====
+      デフォルトではヘッダーと被ることがあるため、margin-top を大きめに。
+    */
     .leaflet-top.leaflet-left {
-      margin-top: 70px !important; 
+      margin-top: 150px !important; 
       margin-left: 10px !important;
     }
 
@@ -139,7 +143,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 // 1. 地図の初期化
 ////////////////////////////////////////////////////////////////////////////////
-const map = L.map("map").setView([36, 138], 5);
+const map = L.map("map");
+
+// 初期表示で日本列島全体が入るように少し広めに設定
+map.setView([33, 137], 4);
+
+// タイルレイヤーを追加
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "&copy; OpenStreetMap contributors"
 }).addTo(map);
@@ -391,7 +400,7 @@ pairs.forEach((pair, i) => {
   `);
   wMarkers.push(wMarker);
 
-  // DOM取得
+  // DOM取得（点滅させるため）
   wMarker.on('add', () => {
     wMarkerElems[i] = wMarker.getElement();
   });
@@ -438,7 +447,7 @@ let autoTourIndex = 0;
 let goingToWorld = true;
 
 function startAutoTour() {
-  // 万国巡幸ツアー、龍体ツアーを停止
+  // 他ツアーを停止
   stopAncientTour();
   stopDragonTour();
 
