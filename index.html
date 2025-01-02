@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <title>日本は世界の縮図？</title>
+  <title>日本は世界の縮図？＋ 万国巡幸ツアー＋ 龍体ツアー</title>
 
   <!-- スマホ対応 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -35,11 +35,11 @@
       padding: 0.5rem 1rem;
     }
 
-    /* ===== ヘッダー上段（タイトル＋ファンタジー文言） ===== */
+    /* ===== ヘッダー上段（タイトル＋サブ文言） ===== */
     .header-top {
       display: flex; 
-      flex-direction: column; /* タイトルと文言を縦並び */
-      align-items: flex-start; /* 左寄せ */
+      flex-direction: column; 
+      align-items: flex-start; 
       gap: 0.25rem;
     }
     .header-top h1 {
@@ -50,13 +50,14 @@
     .fantasy-msg {
       font-size: 0.95rem;
       color: #666;
-      font-weight: bold; /* 太字で目立たせる */
+      font-weight: bold;
     }
 
     /* ===== ヘッダー下段（ボタンエリア） ===== */
     .btn-area {
       display: flex; 
       gap: 0.5rem;
+      flex-wrap: wrap;
     }
     .tour-btn {
       padding: 0.5rem 1rem; 
@@ -75,8 +76,8 @@
     /* ===== 地図本体 ===== */
     #map {
       width: 100%;
-      height: calc(100% - 120px); /* ヘッダーが2段になった分(約120px)を確保 */
-      margin-top: 120px;
+      height: calc(100% - 140px);
+      margin-top: 140px;
     }
 
     /* ===== 点滅アニメーション ===== */
@@ -107,10 +108,18 @@
 
     <!-- 万国巡幸ツアーボタン -->
     <button id="ancient-tour-btn" class="tour-btn" onclick="startAncientTour()">
-      万国巡幸ツアー 上古第三代・天日豊本黄人皇主神天皇の万国巡幸に基づく
+      万国巡幸ツアー開始
     </button>
     <button id="ancient-stop-btn" class="tour-btn" style="display:none;" onclick="stopAncientTour()">
       万国巡幸ツアー停止
+    </button>
+
+    <!-- 龍体ツアーボタン -->
+    <button id="dragon-tour-btn" class="tour-btn" onclick="startDragonTour()">
+      龍体ツアー開始
+    </button>
+    <button id="dragon-stop-btn" class="tour-btn" style="display:none;" onclick="stopDragonTour()">
+      龍体ツアー停止
     </button>
   </div>
 </header>
@@ -130,7 +139,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 ////////////////////////////////////////////////////////////////////////////////
-// 2. 「日本は世界の縮図？」ペア関係データ（従来ツアー）
+// 2. 従来ツアー（「日本は世界の縮図？」のペア関係データ）
 ////////////////////////////////////////////////////////////////////////////////
 const pairs = [
   // --- 大陸・地方 ---
@@ -354,7 +363,7 @@ const wMarkers = [];
 
 // ▼ マーカー生成
 pairs.forEach((pair, i) => {
-  // 日本マーカー
+  // 日本マーカー（デフォルトアイコン）
   const jpMarker = L.marker([pair.latJP, pair.lngJP]).addTo(map);
   jpMarker.bindPopup(`
     <b>${pair.nameJP} - ${pair.nameW}</b><br>
@@ -365,7 +374,7 @@ pairs.forEach((pair, i) => {
   `);
   jpMarkers.push(jpMarker);
 
-  // 世界マーカー
+  // 世界マーカー（デフォルトアイコン）
   const wMarker = L.marker([pair.latW, pair.lngW]).addTo(map);
   wMarker.bindPopup(`
     <b>${pair.nameW} - ${pair.nameJP}</b><br>
@@ -376,7 +385,6 @@ pairs.forEach((pair, i) => {
   `);
   wMarkers.push(wMarker);
 
-  // 点滅用DOM取得
   wMarker.on('add', () => {
     wMarkerElems[i] = wMarker.getElement();
   });
@@ -416,15 +424,16 @@ function removeAllPopups() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// 従来ツアー 自動巡回
+// 従来ツアー：自動巡回
 ////////////////////////////////////////////////////////////////////////////////
 let autoTourTimer = null;
 let autoTourIndex = 0;
 let goingToWorld = true;
 
 function startAutoTour() {
-  // 万国巡幸ツアーを停止（併用しないように）
+  // 万国巡幸ツアー、龍体ツアーを停止（併用しない）
   stopAncientTour();
+  stopDragonTour();
 
   document.getElementById("auto-tour-btn").style.display = "none";
   document.getElementById("stop-btn").style.display = "inline-block";
@@ -471,7 +480,7 @@ function stopAutoTour() {
 //  - 上古第三代・天日豊本黄人皇主神天皇の万国巡幸に基づく。
 //  - 著作権などの権利保護のため、本コードを無断で複製・改変することを禁じます。
 
-// ★ 赤色アイコン
+// ★ 赤色アイコン（万国巡幸用）
 const redIcon = L.icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
   shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
@@ -481,7 +490,7 @@ const redIcon = L.icon({
   shadowSize:   [41, 41]
 });
 
-// ▼ 万国巡幸(竹内文書)の巡幸地リスト（現代語）
+// 万国巡幸(竹内文書)の巡幸地リスト
 const ancientPoints = [
   {
     name: "① 鎮江・チェンヤン（南京付近）",
@@ -494,38 +503,38 @@ const ancientPoints = [
     zoom: 6
   },
   {
-    name: "③ イタリアのウェネチャ（ベニス）\nヨイモツアダムイブヒアカヒ女氏一行の五色人が早く到着し、\n黄人皇主天皇に草花を献上。\n天皇は勅命を出し、アカヒ女氏の一族が住む地を治める王に任命。",
+    name: "③ イタリアのウェネチャ（ベニス）\nヨイモツアダムイブヒアカヒ女氏一行の五色人が\n天皇に草花を献上。\n天皇は勅命を出し王に任命。",
     lat: 45.44, lng: 12.34,
     zoom: 7
   },
   {
-    name: "④ アフリカのネネアホマ浜（ギニア付近）\nアフリアビシアム民王、アスカリトキンコンコク主民王が\n天日豊本黄人皇主天皇にキバナを献上。\n天皇は勅命を出し、彼らを国王に任命。",
+    name: "④ アフリカのネネアホマ浜（ギニア付近）\nアフリアビシアム民王、アスカリトキンコンコク主民王が\n天皇にキバナを献上。\n天皇は勅命を出し国王に任命。",
     lat: 9.5, lng: -13.7,
     zoom: 6
   },
   {
-    name: "⑤ オセアニアのメルボルン浜\nハウライムタイ尊者、ダイビ民玉が天皇の前に参拝。\n天皇は勅命を出して国主に任命。",
+    name: "⑤ オセアニアのメルボルン浜\nハウライムタイ尊者、ダイビ民玉が天皇の前に参拝。\n勅命を出して国主に任命。",
     lat: -37.81, lng: 144.96,
     zoom: 7
   },
   {
-    name: "⑥ 南アメリカのラブラタ浜\n天皇がご巡幸。ヒウケイヒロブラシルコ民王、\nヒウケフラジルバラ民王が参朝して地図を献上。\n天皇は勅命を出し、二名を国主に任命。",
+    name: "⑥ 南アメリカのラブラタ浜\nヒウケイヒロブラシルコ民王、\nヒウケフラジルバラ民王が参朝。\n勅命を出し国主に任命。",
     lat: -34.60, lng: -58.38,
     zoom: 6
   },
   {
-    name: "⑦ 北米カナダのニトアーク浜\n天皇のもとへアヒイタマヲ王アカ民王、\nエスキマルカス民王が参拝。\n天皇は勅命を出し、国主に任命。\nこの時からカナイシ国と呼ばれるようになる。",
+    name: "⑦ 北米カナダのニトアーク浜\nアヒイタマヲ王アカ民王、\nエスキマルカス民王が参拝。\n勅命を出し国主に任命。\n以降カナイシ国と呼ばれる。",
     lat: 56.54, lng: -61.69,
     zoom: 6
   },
   {
-    name: "⑧ 常盤国おつき浜\n万国巡幸が始まってから1950年目の\nカナメツキマドノミツヒの時代に、万国から\n吉道路・常磐国大付浜へ帰還。\nその場所を“唐（から）帰里”と名付ける。",
+    name: "⑧ 常盤国おつき浜\n万国巡幸1950年目、\n万国から常磐国大付浜へ帰還。\n“唐（から）帰里”と名付ける。",
     lat: 37.0, lng: 140.7,
     zoom: 7
   }
 ];
 
-// ▼ 万国巡幸マーカー
+// 万国巡幸マーカー
 const ancientMarkers = [];
 ancientPoints.forEach((p) => {
   const mk = L.marker([p.lat, p.lng], { icon: redIcon }).addTo(map);
@@ -533,13 +542,14 @@ ancientPoints.forEach((p) => {
   ancientMarkers.push(mk);
 });
 
-// ▼ 万国巡幸ツアー自動巡回
+// 万国巡幸ツアー 自動巡回
 let ancientTourTimer = null;
 let ancientTourIndex = 0;
 
 function startAncientTour() {
-  // 従来ツアーを停止
+  // 従来ツアー＆龍体ツアーを停止
   stopAutoTour();
+  stopDragonTour();
 
   document.getElementById("ancient-tour-btn").style.display = "none";
   document.getElementById("ancient-stop-btn").style.display = "inline-block";
@@ -555,7 +565,7 @@ function moveAncientNext() {
   const p = ancientPoints[ancientTourIndex];
   map.flyTo([p.lat, p.lng], p.zoom);
 
-  // 2秒後にポップアップを開き、6秒後に次へ
+  // 2秒後にポップアップ→6秒後に次へ
   setTimeout(() => {
     ancientMarkers[ancientTourIndex].openPopup();
     ancientTourTimer = setTimeout(() => {
@@ -574,14 +584,406 @@ function stopAncientTour() {
   document.getElementById("ancient-tour-btn").style.display = "inline-block";
 
   removeAllAncientPopups();
-
-  // ★ 停止時にマーカーの点滅やポップアップも閉じる
   removeAllBlinks();
   removeAllPopups();
 }
 
 function removeAllAncientPopups() {
   ancientMarkers.forEach(m => m.closePopup());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// 4. 龍体ツアー（全26ヶ所・緑色ピン）
+////////////////////////////////////////////////////////////////////////////////
+const greenIcon = L.icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+  shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
+  iconSize:     [25, 41],
+  iconAnchor:   [12, 41],
+  popupAnchor:  [1, -34],
+  shadowSize:   [41, 41]
+});
+
+/**
+ * 以下は、「日本列島を龍に見立てた」全26ヶ所を網羅したリストです。
+ * 省略なし・緑色ピンで表示し、世界側は点滅アイコン。
+ */
+const dragonFullPairs = [
+  // (1) 龍の角（サハリン）
+  {
+    nameJP: "龍の角（サハリン）",
+    latJP: 48.0, lngJP: 143.0,
+    wikiJP: "https://ja.wikipedia.org/wiki/サハリン",
+    nameW: "グリーンランド",
+    latW: 64.2, lngW: -51.7,
+    wikiW: "https://ja.wikipedia.org/wiki/グリーンランド",
+    zoomJP: 6, zoomW: 4
+  },
+  // (2) 龍のひげ（国後島）
+  {
+    nameJP: "龍のひげ（国後島）",
+    latJP: 44.2, lngJP: 146.0,
+    wikiJP: "https://ja.wikipedia.org/wiki/国後島",
+    nameW: "キューバ",
+    latW: 21.8, lngW: -79.9,
+    wikiW: "https://ja.wikipedia.org/wiki/キューバ",
+    zoomJP: 7, zoomW: 6
+  },
+  // (3) 龍の鼻先（知床半島）
+  {
+    nameJP: "龍の鼻先（知床半島）",
+    latJP: 44.0, lngJP: 145.3,
+    wikiJP: "https://ja.wikipedia.org/wiki/知床半島",
+    nameW: "フロリダ半島",
+    latW: 27.5, lngW: -81.5,
+    wikiW: "https://ja.wikipedia.org/wiki/フロリダ半島",
+    zoomJP: 7, zoomW: 6
+  },
+  // (4) 龍のくちびる（根室半島）
+  {
+    nameJP: "龍のくちびる（根室半島）",
+    latJP: 43.4, lngJP: 145.8,
+    wikiJP: "https://ja.wikipedia.org/wiki/根室半島",
+    nameW: "ユカタン半島",
+    latW: 20.0, lngW: -89.0,
+    wikiW: "https://ja.wikipedia.org/wiki/ユカタン半島",
+    zoomJP: 7, zoomW: 6
+  },
+  // (5) 龍の目（摩周湖）
+  {
+    nameJP: "龍の目（摩周湖）",
+    latJP: 43.57, lngJP: 144.57,
+    wikiJP: "https://ja.wikipedia.org/wiki/摩周湖",
+    nameW: "五大湖（北米の大湖）",
+    latW: 44.0, lngW: -84.0,
+    wikiW: "https://ja.wikipedia.org/wiki/五大湖",
+    zoomJP: 9, zoomW: 5
+  },
+  // (6) 龍の口（釧路～襟裳岬）
+  {
+    nameJP: "龍の口（釧路～襟裳岬）",
+    latJP: 42.7, lngJP: 144.3,
+    wikiJP: "https://ja.wikipedia.org/wiki/釧路市",
+    nameW: "カリフォルニア湾",
+    latW: 29.0, lngW: -113.0,
+    wikiW: "https://ja.wikipedia.org/wiki/カリフォルニア湾",
+    zoomJP: 7, zoomW: 5
+  },
+  // (7) 龍の頭（北海道）
+  {
+    nameJP: "龍の頭（北海道）",
+    latJP: 43.0, lngJP: 142.0,
+    wikiJP: "https://ja.wikipedia.org/wiki/北海道",
+    nameW: "北米",
+    latW: 40.0, lngW: -100.0,
+    wikiW: "https://ja.wikipedia.org/wiki/北アメリカ",
+    zoomJP: 6, zoomW: 4
+  },
+  // (8) 龍のあご（襟裳岬）
+  {
+    nameJP: "龍のあご（襟裳岬）",
+    latJP: 41.93, lngJP: 143.24,
+    wikiJP: "https://ja.wikipedia.org/wiki/襟裳岬",
+    nameW: "カリフォルニア半島",
+    latW: 27.0, lngW: -112.0,
+    wikiW: "https://ja.wikipedia.org/wiki/バハ・カリフォルニア半島",
+    zoomJP: 7, zoomW: 5
+  },
+  // (9) 龍の首まわり（渡島・檜山、津軽海峡）
+  {
+    nameJP: "龍の首まわり（道南＆津軽海峡）",
+    latJP: 42.3, lngJP: 140.3,
+    wikiJP: "https://ja.wikipedia.org/wiki/渡島総合振興局",
+    nameW: "アラスカ＆ベーリング海峡",
+    latW: 64.0, lngW: -165.0,
+    wikiW: "https://ja.wikipedia.org/wiki/アラスカ州",
+    zoomJP: 7, zoomW: 4
+  },
+  // (10) 龍の心臓（十和田湖）
+  {
+    nameJP: "龍の心臓（十和田湖）",
+    latJP: 40.455, lngJP: 140.927,
+    wikiJP: "https://ja.wikipedia.org/wiki/十和田湖",
+    nameW: "バイカル湖",
+    latW: 53.5, lngW: 108.0,
+    wikiW: "https://ja.wikipedia.org/wiki/バイカル湖",
+    zoomJP: 8, zoomW: 5
+  },
+  // (11) 龍の肺（岩手県域）
+  {
+    nameJP: "龍の肺（岩手県域）",
+    latJP: 39.5, lngJP: 141.4,
+    wikiJP: "https://ja.wikipedia.org/wiki/岩手県",
+    nameW: "シベリア",
+    latW: 60.0, lngW: 105.0,
+    wikiW: "https://ja.wikipedia.org/wiki/シベリア",
+    zoomJP: 7, zoomW: 4
+  },
+  // (12) 龍の肩甲骨（牡鹿半島）
+  {
+    nameJP: "龍の肩甲骨（牡鹿半島）",
+    latJP: 38.377, lngJP: 141.495,
+    wikiJP: "https://ja.wikipedia.org/wiki/牡鹿半島",
+    nameW: "朝鮮半島",
+    latW: 39.0, lngW: 127.0,
+    wikiW: "https://ja.wikipedia.org/wiki/朝鮮半島",
+    zoomJP: 8, zoomW: 5
+  },
+  // (13) 龍の横隔膜（仙台港）
+  {
+    nameJP: "龍の横隔膜（仙台港）",
+    latJP: 38.27, lngJP: 141.0,
+    wikiJP: "https://ja.wikipedia.org/wiki/仙台港",
+    nameW: "黄河",
+    latW: 35.7, lngW: 114.3,
+    wikiW: "https://ja.wikipedia.org/wiki/黄河",
+    zoomJP: 8, zoomW: 5
+  },
+  // (14) 付随する対応（佐渡島）
+  {
+    nameJP: "佐渡島",
+    latJP: 38.0, lngJP: 138.4,
+    wikiJP: "https://ja.wikipedia.org/wiki/佐渡島",
+    nameW: "ノヴァヤゼムリャ",
+    latW: 74.0, lngW: 57.0,
+    wikiW: "https://ja.wikipedia.org/wiki/ノヴァヤゼムリャ",
+    zoomJP: 8, zoomW: 5
+  },
+  // (15) 龍の右手（房総半島）
+  {
+    nameJP: "龍の右手（房総半島）",
+    latJP: 35.15, lngJP: 140.25,
+    wikiJP: "https://ja.wikipedia.org/wiki/房総半島",
+    nameW: "マレー半島",
+    latW: 4.5, lngW: 102.0,
+    wikiW: "https://ja.wikipedia.org/wiki/マレー半島",
+    zoomJP: 8, zoomW: 5
+  },
+  // (16) 龍の左手・龍の玉（能登半島/珠洲）
+  {
+    nameJP: "龍の左手・龍の玉（能登半島/珠洲）",
+    latJP: 37.4, lngJP: 137.3,
+    wikiJP: "https://ja.wikipedia.org/wiki/能登半島",
+    nameW: "スカンジナビア半島",
+    latW: 62.0, lngW: 15.0,
+    wikiW: "https://ja.wikipedia.org/wiki/スカンディナヴィア",
+    zoomJP: 7, zoomW: 5
+  },
+  // (17) 龍の左乳（富士山＋大島）
+  {
+    nameJP: "龍の左乳（富士山＋大島）",
+    latJP: 35.36, lngJP: 138.73,
+    wikiJP: "https://ja.wikipedia.org/wiki/富士山",
+    nameW: "ヒマラヤ（＋スリランカ）",
+    latW: 28.0, lngW: 84.0,
+    wikiW: "https://ja.wikipedia.org/wiki/ヒマラヤ山脈",
+    zoomJP: 7, zoomW: 5
+  },
+  // (18) 龍の右乳（伊豆半島）
+  {
+    nameJP: "龍の右乳（伊豆半島）",
+    latJP: 34.9, lngJP: 138.93,
+    wikiJP: "https://ja.wikipedia.org/wiki/伊豆半島",
+    nameW: "インド半島",
+    latW: 23.0, lngW: 79.0,
+    wikiW: "https://ja.wikipedia.org/wiki/インド亜大陸",
+    zoomJP: 8, zoomW: 5
+  },
+  // (19) 龍の子宮（琵琶湖）
+  {
+    nameJP: "龍の子宮（琵琶湖）",
+    latJP: 35.188, lngJP: 136.194,
+    wikiJP: "https://ja.wikipedia.org/wiki/琵琶湖",
+    nameW: "カスピ海",
+    latW: 42.0, lngW: 50.0,
+    wikiW: "https://ja.wikipedia.org/wiki/カスピ海",
+    zoomJP: 8, zoomW: 5
+  },
+  // (20) 龍の腰（紀伊半島ほか）
+  {
+    nameJP: "龍の腰（紀伊半島ほか）",
+    latJP: 34.2, lngJP: 135.0,
+    wikiJP: "https://ja.wikipedia.org/wiki/紀伊半島",
+    nameW: "アラビア半島ほか",
+    latW: 20.0, lngW: 45.0,
+    wikiW: "https://ja.wikipedia.org/wiki/アラビア半島",
+    zoomJP: 7, zoomW: 4
+  },
+  // (21) 龍の尻（中国地方）
+  {
+    nameJP: "龍の尻（中国地方）",
+    latJP: 34.6, lngJP: 132.8,
+    wikiJP: "https://ja.wikipedia.org/wiki/中国地方",
+    nameW: "ヨーロッパ（下関=ジブラルタル海峡）",
+    latW: 48.0, lngW: 9.0,
+    wikiW: "https://ja.wikipedia.org/wiki/ヨーロッパ",
+    zoomJP: 7, zoomW: 5
+  },
+  // (22) 龍のへそ（伊勢湾）
+  {
+    nameJP: "龍のへそ（伊勢湾）",
+    latJP: 34.72, lngJP: 136.91,
+    wikiJP: "https://ja.wikipedia.org/wiki/伊勢湾",
+    nameW: "ペルシャ湾",
+    latW: 27.0, lngW: 50.0,
+    wikiW: "https://ja.wikipedia.org/wiki/ペルシャ湾",
+    zoomJP: 8, zoomW: 5
+  },
+  // (23) 龍の右足（四国）
+  {
+    nameJP: "龍の右足（四国）",
+    latJP: 33.5, lngJP: 133.5,
+    wikiJP: "https://ja.wikipedia.org/wiki/四国",
+    nameW: "オーストラリア",
+    latW: -25.0, lngW: 135.0,
+    wikiW: "https://ja.wikipedia.org/wiki/オーストラリア",
+    zoomJP: 7, zoomW: 5
+  },
+  // (24) 龍の腸（瀬戸内海）
+  {
+    nameJP: "龍の腸（瀬戸内海）",
+    latJP: 34.25, lngJP: 133.2,
+    wikiJP: "https://ja.wikipedia.org/wiki/瀬戸内海",
+    nameW: "地中海～太平洋",
+    latW: 35.0, lngW: 20.0,
+    wikiW: "https://ja.wikipedia.org/wiki/地中海",
+    zoomJP: 7, zoomW: 5
+  },
+  // (25) 龍の左足（九州）
+  {
+    nameJP: "龍の左足（九州）",
+    latJP: 32.0, lngJP: 130.0,
+    wikiJP: "https://ja.wikipedia.org/wiki/九州",
+    nameW: "（アフリカ大陸？未記載）",
+    latW: 5.0, lngW: 20.0,
+    wikiW: "https://ja.wikipedia.org/wiki/アフリカ",
+    zoomJP: 7, zoomW: 5
+  },
+  // (26) 龍の尾（種子島～沖縄）
+  {
+    nameJP: "龍の尾（種子島～沖縄）",
+    latJP: 30.72, lngJP: 131.0,
+    wikiJP: "https://ja.wikipedia.org/wiki/種子島",
+    nameW: "南洋（フィリピン海あたり）",
+    latW: 8.0, lngW: 126.0,
+    wikiW: "https://ja.wikipedia.org/wiki/フィリピン海",
+    zoomJP: 7, zoomW: 5
+  }
+];
+
+// マーカー配列＆DOM
+const dragonJPMarkers = [];
+const dragonWMarkers = [];
+const dragonWMarkerElems = {};
+
+// マーカー生成
+dragonFullPairs.forEach((pair, i) => {
+  // 日本マーカー（緑色）
+  const jpMarker = L.marker([pair.latJP, pair.lngJP], { icon: greenIcon }).addTo(map);
+  jpMarker.bindPopup(`
+    <b>${pair.nameJP} → ${pair.nameW}</b><br>
+    <a href="${pair.wikiJP}" target="_blank">[ ${pair.nameJP}のWiki ]</a><br>
+    <a href="${pair.wikiW}" target="_blank">[ ${pair.nameW}のWiki ]</a>
+    <hr style="margin:6px 0">
+    <button onclick="moveDragonToWorld(${i})">世界の対応地へ</button>
+  `);
+  dragonJPMarkers.push(jpMarker);
+
+  // 世界マーカー（緑色）
+  const wMarker = L.marker([pair.latW, pair.lngW], { icon: greenIcon }).addTo(map);
+  wMarker.bindPopup(`
+    <b>${pair.nameW} → ${pair.nameJP}</b><br>
+    <a href="${pair.wikiW}" target="_blank">[ ${pair.nameW}のWiki ]</a><br>
+    <a href="${pair.wikiJP}" target="_blank">[ ${pair.nameJP}のWiki ]</a>
+    <hr style="margin:6px 0">
+    <button onclick="moveDragonToJapan(${i})">日本(龍体)へ戻る</button>
+  `);
+  dragonWMarkers.push(wMarker);
+
+  wMarker.on('add', () => {
+    dragonWMarkerElems[i] = wMarker.getElement();
+  });
+});
+
+// 龍体ツアー移動
+function moveDragonToWorld(i) {
+  const p = dragonFullPairs[i];
+  map.flyTo([p.latW, p.lngW], p.zoomW);
+  setTimeout(() => {
+    dragonWMarkers[i].openPopup();
+    blinkDragonWorldMarker(i);
+  }, 1000);
+}
+function moveDragonToJapan(i) {
+  const p = dragonFullPairs[i];
+  map.flyTo([p.latJP, p.lngJP], p.zoomJP || 7);
+  setTimeout(() => {
+    dragonJPMarkers[i].openPopup();
+    removeAllDragonBlinks();
+  }, 1000);
+}
+function blinkDragonWorldMarker(i) {
+  removeAllDragonBlinks();
+  if (!dragonWMarkerElems[i]) return;
+  dragonWMarkerElems[i].classList.add('blink-marker');
+  setTimeout(() => {
+    dragonWMarkerElems[i].classList.remove('blink-marker');
+  }, 3000);
+}
+function removeAllDragonBlinks() {
+  Object.values(dragonWMarkerElems).forEach(el => el.classList.remove('blink-marker'));
+}
+function removeAllDragonPopups() {
+  dragonJPMarkers.forEach(m => m.closePopup());
+  dragonWMarkers.forEach(m => m.closePopup());
+}
+
+// 龍体ツアー 自動巡回
+let dragonTourTimer = null;
+let dragonTourIndex = 0;
+let dragonGoingToWorld = true;
+
+function startDragonTour() {
+  // 他ツアー停止
+  stopAutoTour();
+  stopAncientTour();
+
+  document.getElementById("dragon-tour-btn").style.display = "none";
+  document.getElementById("dragon-stop-btn").style.display = "inline-block";
+
+  dragonTourIndex = 0;
+  dragonGoingToWorld = true;
+  dragonTourNext();
+}
+function dragonTourNext() {
+  if (dragonTourIndex >= dragonFullPairs.length) {
+    dragonTourIndex = 0;
+  }
+  if (dragonGoingToWorld) {
+    moveDragonToWorld(dragonTourIndex);
+    dragonTourTimer = setTimeout(() => {
+      dragonGoingToWorld = false;
+      dragonTourNext();
+    }, 4000);
+  } else {
+    moveDragonToJapan(dragonTourIndex);
+    dragonTourTimer = setTimeout(() => {
+      dragonGoingToWorld = true;
+      dragonTourIndex++;
+      dragonTourNext();
+    }, 4000);
+  }
+}
+function stopDragonTour() {
+  if (dragonTourTimer) {
+    clearTimeout(dragonTourTimer);
+    dragonTourTimer = null;
+  }
+  document.getElementById("dragon-stop-btn").style.display = "none";
+  document.getElementById("dragon-tour-btn").style.display = "inline-block";
+
+  removeAllDragonBlinks();
+  removeAllDragonPopups();
 }
 </script>
 </body>
