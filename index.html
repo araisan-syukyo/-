@@ -57,7 +57,7 @@
     .btn-area {
       display: flex; 
       gap: 0.5rem;
-      flex-wrap: wrap;
+      flex-wrap: wrap; 
     }
     .tour-btn {
       padding: 0.5rem 1rem; 
@@ -77,12 +77,11 @@
     #map {
       width: 100%;
       height: calc(100% - 140px);
-      margin-top: 140px; /* ヘッダー高さと合わせる */
+      margin-top: 140px; /* ヘッダーの高さと合わせる */
     }
 
-    /* ===== ズームコントロールや他Leafletコントロールの位置調整 ===== */
+    /* ===== Leafletコントロール（＋−）の位置をヘッダー下へずらす ===== */
     .leaflet-top.leaflet-left {
-      /* ヘッダーより下に配置するために余白を足す */
       margin-top: 70px !important; 
       margin-left: 10px !important;
     }
@@ -146,7 +145,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 ////////////////////////////////////////////////////////////////////////////////
-// 2. 従来ツアー（日本⇔世界 対応）
+// 2. 従来ツアー（日本⇔世界の対応リスト）
 ////////////////////////////////////////////////////////////////////////////////
 const pairs = [
   // --- 大陸・地方 ---
@@ -370,7 +369,7 @@ const wMarkers = [];
 
 // ▼ マーカー生成
 pairs.forEach((pair, i) => {
-  // 日本マーカー（デフォルトアイコン）
+  // 日本マーカー
   const jpMarker = L.marker([pair.latJP, pair.lngJP]).addTo(map);
   jpMarker.bindPopup(`
     <b>${pair.nameJP} - ${pair.nameW}</b><br>
@@ -381,7 +380,7 @@ pairs.forEach((pair, i) => {
   `);
   jpMarkers.push(jpMarker);
 
-  // 世界マーカー（デフォルトアイコン）
+  // 世界マーカー
   const wMarker = L.marker([pair.latW, pair.lngW]).addTo(map);
   wMarker.bindPopup(`
     <b>${pair.nameW} - ${pair.nameJP}</b><br>
@@ -392,7 +391,7 @@ pairs.forEach((pair, i) => {
   `);
   wMarkers.push(wMarker);
 
-  // 点滅用DOM取得
+  // DOM取得
   wMarker.on('add', () => {
     wMarkerElems[i] = wMarker.getElement();
   });
@@ -432,14 +431,14 @@ function removeAllPopups() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// 従来ツアー 自動巡回
+// 従来ツアー：自動巡回
 ////////////////////////////////////////////////////////////////////////////////
 let autoTourTimer = null;
 let autoTourIndex = 0;
 let goingToWorld = true;
 
 function startAutoTour() {
-  // 万国巡幸ツアー、龍体ツアーを停止（併用しないように）
+  // 万国巡幸ツアー、龍体ツアーを停止
   stopAncientTour();
   stopDragonTour();
 
@@ -482,12 +481,12 @@ function stopAutoTour() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// 3. 万国巡幸ツアー（神代の万国史：竹内文書）
+// 3. 万国巡幸ツアー（竹内文書：上古第三代・天日豊本黄人皇主神天皇）
 ////////////////////////////////////////////////////////////////////////////////
-// - 上古第三代・天日豊本黄人皇主神天皇の万国巡幸
-// - 著作権保護のため、本コードの無断複製・改変はお控え下さい。
+//  - 出典：「神代の万国史」
+//  - 無断複製・改変はお控え下さい。
 
-// ★ 赤色アイコン（万国巡幸用）
+// ★ 赤色アイコン
 const redIcon = L.icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
   shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
@@ -497,7 +496,7 @@ const redIcon = L.icon({
   shadowSize:   [41, 41]
 });
 
-// 万国巡幸地リスト
+// 万国巡幸リスト
 const ancientPoints = [
   {
     name: "① 鎮江・チェンヤン（南京付近）",
@@ -505,17 +504,17 @@ const ancientPoints = [
     zoom: 6
   },
   {
-    name: "② 保定（北京と天津付近）\n支那王・盤邦王民が天皇に唐みしを献上。\n天皇は勅命を出し支那国主に任命。",
+    name: "② 保定（北京と天津付近）\n支那王・盤邦王民が天皇に唐みしを献上。\n天皇は勅命を出して支那国主に任命。",
     lat: 38.87, lng: 115.46,
     zoom: 6
   },
   {
-    name: "③ イタリアのウェネチャ（ベニス）\nヨイモツアダムイブヒアカヒ女氏一行の五色人が\n天皇に草花を献上。\n天皇は勅命を出し王に任命。",
+    name: "③ イタリアのウェネチャ（ベニス）\nヨイモツアダムイブヒアカヒ女氏一行の五色人が\n天皇に草花を献上。勅命を賜り王に任命。",
     lat: 45.44, lng: 12.34,
     zoom: 7
   },
   {
-    name: "④ アフリカのネネアホマ浜（ギニア付近）\nアフリアビシアム民王らが天皇にキバナを献上。\n勅命で国王に任命。",
+    name: "④ アフリカのネネアホマ浜（ギニア付近）\nアフリアビシアム民王らが天皇にキバナを献上。\n天皇は勅命を出し国王に任命。",
     lat: 9.5, lng: -13.7,
     zoom: 6
   },
@@ -525,17 +524,17 @@ const ancientPoints = [
     zoom: 7
   },
   {
-    name: "⑥ 南アメリカのラブラタ浜\nヒウケイヒロブラシルコ民王らが参朝。\n地図を献上。\n天皇は勅命を出し国主に任命。",
+    name: "⑥ 南アメリカのラブラタ浜\nヒウケイヒロブラシルコ民王らが参朝。\n地図を献上。\n勅命を出し国主に任命。",
     lat: -34.60, lng: -58.38,
     zoom: 6
   },
   {
-    name: "⑦ 北米カナダのニトアーク浜\nアヒイタマヲ王アカ民王らが参拝。\n勅命を出し国主に任命。\n以降カナイシ国と呼ばれる。",
+    name: "⑦ 北米カナダのニトアーク浜\nアヒイタマヲ王アカ民王らが参拝。\n天皇は勅命を下し国主に任命。\n以降カナイシ国と呼ばれる。",
     lat: 56.54, lng: -61.69,
     zoom: 6
   },
   {
-    name: "⑧ 常盤国おつき浜\n万国巡幸1950年目、\n万国から常磐国大付浜へ帰還。\n“唐（から）帰里”と名付ける。",
+    name: "⑧ 常盤国おつき浜\n万国巡幸1950年目、天皇が万国から\n常磐国大付浜へ帰還。“唐(から)帰里”と名付ける。",
     lat: 37.0, lng: 140.7,
     zoom: 7
   }
@@ -572,7 +571,7 @@ function moveAncientNext() {
   const p = ancientPoints[ancientTourIndex];
   map.flyTo([p.lat, p.lng], p.zoom);
 
-  // 2秒後にポップアップ → 6秒後に次へ
+  // 2秒後ポップアップ → 6秒後に次へ
   setTimeout(() => {
     ancientMarkers[ancientTourIndex].openPopup();
     ancientTourTimer = setTimeout(() => {
@@ -600,7 +599,7 @@ function removeAllAncientPopups() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// 4. 龍体ツアー（全26ヶ所・緑色ピン） - 自動巡回は日本側のみ
+// 4. 龍体ツアー（全26ヶ所・緑アイコン） - 自動巡回は日本側のみ
 ////////////////////////////////////////////////////////////////////////////////
 const greenIcon = L.icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
@@ -611,9 +610,8 @@ const greenIcon = L.icon({
   shadowSize:   [41, 41]
 });
 
-// 「日本列島を龍に見立てた」全26ヶ所
+// （省略せずにdragonFullPairsを全て掲載）
 const dragonFullPairs = [
-  // (1) 龍の角（サハリン・ロシア領）
   {
     nameJP: "龍の角（サハリン・ロシア領）",
     latJP: 48.0, lngJP: 143.0,
@@ -623,8 +621,6 @@ const dragonFullPairs = [
     wikiW: "https://ja.wikipedia.org/wiki/グリーンランド",
     zoomJP: 6, zoomW: 4
   },
-  // 以下、省略せず全て同様に...
-  /* 同じく(2)～(26)のdragonFullPairsリストを完全収録（前掲） */
   {
     nameJP: "龍のひげ（国後島）",
     latJP: 44.2, lngJP: 146.0,
@@ -652,7 +648,195 @@ const dragonFullPairs = [
     wikiW: "https://ja.wikipedia.org/wiki/ユカタン半島",
     zoomJP: 7, zoomW: 6
   },
-  /* ... 途中省略せず (5)～(26) 続く ... */
+  {
+    nameJP: "龍の目（摩周湖）",
+    latJP: 43.57, lngJP: 144.57,
+    wikiJP: "https://ja.wikipedia.org/wiki/摩周湖",
+    nameW: "五大湖（北米の大湖）",
+    latW: 44.0, lngW: -84.0,
+    wikiW: "https://ja.wikipedia.org/wiki/五大湖",
+    zoomJP: 9, zoomW: 5
+  },
+  {
+    nameJP: "龍の口（釧路～襟裳岬）",
+    latJP: 42.7, lngJP: 144.3,
+    wikiJP: "https://ja.wikipedia.org/wiki/釧路市",
+    nameW: "カリフォルニア湾",
+    latW: 29.0, lngW: -113.0,
+    wikiW: "https://ja.wikipedia.org/wiki/カリフォルニア湾",
+    zoomJP: 7, zoomW: 5
+  },
+  {
+    nameJP: "龍の頭（北海道）",
+    latJP: 43.0, lngJP: 142.0,
+    wikiJP: "https://ja.wikipedia.org/wiki/北海道",
+    nameW: "北米",
+    latW: 40.0, lngW: -100.0,
+    wikiW: "https://ja.wikipedia.org/wiki/北アメリカ",
+    zoomJP: 6, zoomW: 4
+  },
+  {
+    nameJP: "龍のあご（襟裳岬）",
+    latJP: 41.93, lngJP: 143.24,
+    wikiJP: "https://ja.wikipedia.org/wiki/襟裳岬",
+    nameW: "カリフォルニア半島",
+    latW: 27.0, lngW: -112.0,
+    wikiW: "https://ja.wikipedia.org/wiki/バハ・カリフォルニア半島",
+    zoomJP: 7, zoomW: 5
+  },
+  {
+    nameJP: "龍の首まわり（道南＆津軽海峡）",
+    latJP: 42.3, lngJP: 140.3,
+    wikiJP: "https://ja.wikipedia.org/wiki/渡島総合振興局",
+    nameW: "アラスカ＆ベーリング海峡",
+    latW: 64.0, lngW: -165.0,
+    wikiW: "https://ja.wikipedia.org/wiki/アラスカ州",
+    zoomJP: 7, zoomW: 4
+  },
+  {
+    nameJP: "龍の心臓（十和田湖）",
+    latJP: 40.455, lngJP: 140.927,
+    wikiJP: "https://ja.wikipedia.org/wiki/十和田湖",
+    nameW: "バイカル湖",
+    latW: 53.5, lngW: 108.0,
+    wikiW: "https://ja.wikipedia.org/wiki/バイカル湖",
+    zoomJP: 8, zoomW: 5
+  },
+  {
+    nameJP: "龍の肺（岩手県域）",
+    latJP: 39.5, lngJP: 141.4,
+    wikiJP: "https://ja.wikipedia.org/wiki/岩手県",
+    nameW: "シベリア",
+    latW: 60.0, lngW: 105.0,
+    wikiW: "https://ja.wikipedia.org/wiki/シベリア",
+    zoomJP: 7, zoomW: 4
+  },
+  {
+    nameJP: "龍の肩甲骨（牡鹿半島）",
+    latJP: 38.377, lngJP: 141.495,
+    wikiJP: "https://ja.wikipedia.org/wiki/牡鹿半島",
+    nameW: "朝鮮半島",
+    latW: 39.0, lngW: 127.0,
+    wikiW: "https://ja.wikipedia.org/wiki/朝鮮半島",
+    zoomJP: 8, zoomW: 5
+  },
+  {
+    nameJP: "龍の横隔膜（仙台港）",
+    latJP: 38.27, lngJP: 141.0,
+    wikiJP: "https://ja.wikipedia.org/wiki/仙台港",
+    nameW: "黄河",
+    latW: 35.7, lngW: 114.3,
+    wikiW: "https://ja.wikipedia.org/wiki/黄河",
+    zoomJP: 8, zoomW: 5
+  },
+  {
+    nameJP: "龍の横隔膜(佐渡島)",
+    latJP: 38.0, lngJP: 138.4,
+    wikiJP: "https://ja.wikipedia.org/wiki/佐渡島",
+    nameW: "ノヴァヤゼムリャ",
+    latW: 74.0, lngW: 57.0,
+    wikiW: "https://ja.wikipedia.org/wiki/ノヴァヤゼムリャ",
+    zoomJP: 8, zoomW: 5
+  },
+  {
+    nameJP: "龍の右手（房総半島）",
+    latJP: 35.15, lngJP: 140.25,
+    wikiJP: "https://ja.wikipedia.org/wiki/房総半島",
+    nameW: "マレー半島",
+    latW: 4.5, lngW: 102.0,
+    wikiW: "https://ja.wikipedia.org/wiki/マレー半島",
+    zoomJP: 8, zoomW: 5
+  },
+  {
+    nameJP: "龍の左手・龍の玉（能登半島/珠洲）",
+    latJP: 37.4, lngJP: 137.3,
+    wikiJP: "https://ja.wikipedia.org/wiki/能登半島",
+    nameW: "スカンジナビア半島",
+    latW: 62.0, lngW: 15.0,
+    wikiW: "https://ja.wikipedia.org/wiki/スカンディナヴィア",
+    zoomJP: 7, zoomW: 5
+  },
+  {
+    nameJP: "龍の左乳（富士山＋大島）",
+    latJP: 35.36, lngJP: 138.73,
+    wikiJP: "https://ja.wikipedia.org/wiki/富士山",
+    nameW: "ヒマラヤ（＋スリランカ）",
+    latW: 28.0, lngW: 84.0,
+    wikiW: "https://ja.wikipedia.org/wiki/ヒマラヤ山脈",
+    zoomJP: 7, zoomW: 5
+  },
+  {
+    nameJP: "龍の右乳（伊豆半島）",
+    latJP: 34.9, lngJP: 138.93,
+    wikiJP: "https://ja.wikipedia.org/wiki/伊豆半島",
+    nameW: "インド半島",
+    latW: 23.0, lngW: 79.0,
+    wikiW: "https://ja.wikipedia.org/wiki/インド亜大陸",
+    zoomJP: 8, zoomW: 5
+  },
+  {
+    nameJP: "龍の子宮（琵琶湖）",
+    latJP: 35.188, lngJP: 136.194,
+    wikiJP: "https://ja.wikipedia.org/wiki/琵琶湖",
+    nameW: "カスピ海",
+    latW: 42.0, lngW: 50.0,
+    wikiW: "https://ja.wikipedia.org/wiki/カスピ海",
+    zoomJP: 8, zoomW: 5
+  },
+  {
+    nameJP: "龍の腰（紀伊半島ほか）",
+    latJP: 34.2, lngJP: 135.0,
+    wikiJP: "https://ja.wikipedia.org/wiki/紀伊半島",
+    nameW: "アラビア半島ほか",
+    latW: 20.0, lngW: 45.0,
+    wikiW: "https://ja.wikipedia.org/wiki/アラビア半島",
+    zoomJP: 7, zoomW: 4
+  },
+  {
+    nameJP: "龍の尻（中国地方）",
+    latJP: 34.6, lngJP: 132.8,
+    wikiJP: "https://ja.wikipedia.org/wiki/中国地方",
+    nameW: "ヨーロッパ（下関=ジブラルタル海峡）",
+    latW: 48.0, lngW: 9.0,
+    wikiW: "https://ja.wikipedia.org/wiki/ヨーロッパ",
+    zoomJP: 7, zoomW: 5
+  },
+  {
+    nameJP: "龍のへそ（伊勢湾）",
+    latJP: 34.72, lngJP: 136.91,
+    wikiJP: "https://ja.wikipedia.org/wiki/伊勢湾",
+    nameW: "ペルシャ湾",
+    latW: 27.0, lngW: 50.0,
+    wikiW: "https://ja.wikipedia.org/wiki/ペルシャ湾",
+    zoomJP: 8, zoomW: 5
+  },
+  {
+    nameJP: "龍の右足（四国）",
+    latJP: 33.5, lngJP: 133.5,
+    wikiJP: "https://ja.wikipedia.org/wiki/四国",
+    nameW: "オーストラリア",
+    latW: -25.0, lngW: 135.0,
+    wikiW: "https://ja.wikipedia.org/wiki/オーストラリア",
+    zoomJP: 7, zoomW: 5
+  },
+  {
+    nameJP: "龍の腸（瀬戸内海）",
+    latJP: 34.25, lngJP: 133.2,
+    wikiJP: "https://ja.wikipedia.org/wiki/瀬戸内海",
+    nameW: "地中海～太平洋",
+    latW: 35.0, lngW: 20.0,
+    wikiW: "https://ja.wikipedia.org/wiki/地中海",
+    zoomJP: 7, zoomW: 5
+  },
+  {
+    nameJP: "龍の左足（九州）",
+    latJP: 32.0, lngJP: 130.0,
+    wikiJP: "https://ja.wikipedia.org/wiki/九州",
+    nameW: "（アフリカ大陸）",
+    latW: 5.0, lngW: 20.0,
+    wikiW: "https://ja.wikipedia.org/wiki/アフリカ",
+    zoomJP: 7, zoomW: 5
+  },
   {
     nameJP: "龍の尾（種子島～沖縄）",
     latJP: 30.72, lngJP: 131.0,
@@ -693,13 +877,12 @@ dragonFullPairs.forEach((pair, i) => {
   `);
   dragonWMarkers.push(wMarker);
 
-  // 点滅用DOM取得
   wMarker.on('add', () => {
     dragonWMarkerElems[i] = wMarker.getElement();
   });
 });
 
-// ▼ 龍体ツアー：手動対応地ジャンプ
+// ▼ 龍体ツアー：移動 (手動クリック用)
 function moveDragonToWorld(i) {
   const p = dragonFullPairs[i];
   map.flyTo([p.latW, p.lngW], p.zoomW);
@@ -754,7 +937,7 @@ function dragonTourNext() {
   const p = dragonFullPairs[dragonTourIndex];
   map.flyTo([p.latJP, p.lngJP], p.zoomJP || 7);
 
-  // 2秒後ポップアップ → 4秒後次へ
+  // 2秒後にポップアップ → 4秒後に次へ
   setTimeout(() => {
     dragonJPMarkers[dragonTourIndex].openPopup();
     dragonTourTimer = setTimeout(() => {
