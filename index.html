@@ -102,11 +102,11 @@
 
   <!-- 下段：ボタンエリア -->
   <div class="btn-area">
-    <!-- 従来ツアー（日本⇔世界）ボタン -->
+    <!-- 従来ツアー（日本⇔世界） -->
     <button id="auto-tour-btn" class="tour-btn" onclick="startAutoTour()">自動ツアー開始</button>
     <button id="stop-btn" class="tour-btn" style="display:none;" onclick="stopAutoTour()">自動ツアー停止</button>
 
-    <!-- 万国巡幸ツアーボタン -->
+    <!-- 万国巡幸ツアー -->
     <button id="ancient-tour-btn" class="tour-btn" onclick="startAncientTour()">
       万国巡幸ツアー開始
     </button>
@@ -114,7 +114,7 @@
       万国巡幸ツアー停止
     </button>
 
-    <!-- 龍体ツアーボタン -->
+    <!-- 龍体ツアー -->
     <button id="dragon-tour-btn" class="tour-btn" onclick="startDragonTour()">
       龍体ツアー開始
     </button>
@@ -139,7 +139,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 ////////////////////////////////////////////////////////////////////////////////
-// 2. 従来ツアー（「日本は世界の縮図？」のペア関係データ）
+// 2. 従来ツアー（日本⇔世界 対応）
 ////////////////////////////////////////////////////////////////////////////////
 const pairs = [
   // --- 大陸・地方 ---
@@ -355,11 +355,11 @@ const pairs = [
   }
 ];
 
-// ▼ 世界側マーカー DOM (点滅用)
-const wMarkerElems = {};
-// ▼ マーカー配列
+// ▼ 従来ツアー用マーカー配列
 const jpMarkers = [];
 const wMarkers = [];
+// ▼ 世界側マーカーDOM（点滅制御用）
+const wMarkerElems = {};
 
 // ▼ マーカー生成
 pairs.forEach((pair, i) => {
@@ -385,12 +385,13 @@ pairs.forEach((pair, i) => {
   `);
   wMarkers.push(wMarker);
 
+  // DOM取得(世界側)
   wMarker.on('add', () => {
     wMarkerElems[i] = wMarker.getElement();
   });
 });
 
-// ▼ 従来ツアー：移動 & 点滅
+// ▼ 移動＆点滅
 function moveToWorld(i) {
   const p = pairs[i];
   map.flyTo([p.latW, p.lngW], p.zoomW);
@@ -431,7 +432,7 @@ let autoTourIndex = 0;
 let goingToWorld = true;
 
 function startAutoTour() {
-  // 万国巡幸ツアー、龍体ツアーを停止（併用しない）
+  // 万国巡幸ツアー＆龍体ツアーを停止
   stopAncientTour();
   stopDragonTour();
 
@@ -476,9 +477,9 @@ function stopAutoTour() {
 ////////////////////////////////////////////////////////////////////////////////
 // 3. 万国巡幸ツアー（神代の万国史：竹内文書）
 ////////////////////////////////////////////////////////////////////////////////
-//  - 出典：「神代（かみよ）の万国史」
-//  - 上古第三代・天日豊本黄人皇主神天皇の万国巡幸に基づく。
-//  - 著作権などの権利保護のため、本コードを無断で複製・改変することを禁じます。
+// - 出典：「神代（かみよ）の万国史」
+// - 上古第三代・天日豊本黄人皇主神天皇の万国巡幸
+// - 著作権などの保護のため、本コードの複製・改変はお控え下さい。
 
 // ★ 赤色アイコン（万国巡幸用）
 const redIcon = L.icon({
@@ -490,7 +491,7 @@ const redIcon = L.icon({
   shadowSize:   [41, 41]
 });
 
-// 万国巡幸(竹内文書)の巡幸地リスト
+// 万国巡幸地リスト
 const ancientPoints = [
   {
     name: "① 鎮江・チェンヤン（南京付近）",
@@ -498,7 +499,7 @@ const ancientPoints = [
     zoom: 6
   },
   {
-    name: "② 保定（北京と天津付近）\n支那王・盤邦王民が天皇に唐みしを献上。\n天皇は勅命を出して支那国主に任命。",
+    name: "② 保定（北京と天津付近）\n支那王・盤邦王民が天皇に唐みしを献上。\n天皇は勅命を出し支那国主に任命。",
     lat: 38.87, lng: 115.46,
     zoom: 6
   },
@@ -508,22 +509,22 @@ const ancientPoints = [
     zoom: 7
   },
   {
-    name: "④ アフリカのネネアホマ浜（ギニア付近）\nアフリアビシアム民王、アスカリトキンコンコク主民王が\n天皇にキバナを献上。\n天皇は勅命を出し国王に任命。",
+    name: "④ アフリカのネネアホマ浜（ギニア付近）\nアフリアビシアム民王らが天皇にキバナを献上。\n勅命で国王に任命。",
     lat: 9.5, lng: -13.7,
     zoom: 6
   },
   {
-    name: "⑤ オセアニアのメルボルン浜\nハウライムタイ尊者、ダイビ民玉が天皇の前に参拝。\n勅命を出して国主に任命。",
+    name: "⑤ オセアニアのメルボルン浜\nハウライムタイ尊者らが天皇に参拝。\n勅命で国主に任命。",
     lat: -37.81, lng: 144.96,
     zoom: 7
   },
   {
-    name: "⑥ 南アメリカのラブラタ浜\nヒウケイヒロブラシルコ民王、\nヒウケフラジルバラ民王が参朝。\n勅命を出し国主に任命。",
+    name: "⑥ 南アメリカのラブラタ浜\nヒウケイヒロブラシルコ民王らが参朝。\n地図を献上。\n天皇は勅命を出し国主に任命。",
     lat: -34.60, lng: -58.38,
     zoom: 6
   },
   {
-    name: "⑦ 北米カナダのニトアーク浜\nアヒイタマヲ王アカ民王、\nエスキマルカス民王が参拝。\n勅命を出し国主に任命。\n以降カナイシ国と呼ばれる。",
+    name: "⑦ 北米カナダのニトアーク浜\nアヒイタマヲ王アカ民王らが参拝。\n勅命を出し国主に任命。\n以降カナイシ国と呼ばれる。",
     lat: 56.54, lng: -61.69,
     zoom: 6
   },
@@ -565,7 +566,7 @@ function moveAncientNext() {
   const p = ancientPoints[ancientTourIndex];
   map.flyTo([p.lat, p.lng], p.zoom);
 
-  // 2秒後にポップアップ→6秒後に次へ
+  // 2秒後にポップアップ → 6秒後に次へ
   setTimeout(() => {
     ancientMarkers[ancientTourIndex].openPopup();
     ancientTourTimer = setTimeout(() => {
@@ -593,7 +594,7 @@ function removeAllAncientPopups() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// 4. 龍体ツアー（全26ヶ所・緑色ピン）
+// 4. 龍体ツアー（全26ヶ所・緑色ピン） - 自動巡回は日本側のみ
 ////////////////////////////////////////////////////////////////////////////////
 const greenIcon = L.icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
@@ -604,10 +605,7 @@ const greenIcon = L.icon({
   shadowSize:   [41, 41]
 });
 
-/**
- * 以下は、「日本列島を龍に見立てた」全26ヶ所を網羅したリストです。
- * 省略なし・緑色ピンで表示し、世界側は点滅アイコン。
- */
+// 「日本列島を龍に見立てた」全26ヶ所
 const dragonFullPairs = [
   // (1) 龍の角（サハリン）
   {
@@ -689,7 +687,7 @@ const dragonFullPairs = [
     wikiW: "https://ja.wikipedia.org/wiki/バハ・カリフォルニア半島",
     zoomJP: 7, zoomW: 5
   },
-  // (9) 龍の首まわり（渡島・檜山、津軽海峡）
+  // (9) 龍の首まわり（道南＆津軽海峡）
   {
     nameJP: "龍の首まわり（道南＆津軽海峡）",
     latJP: 42.3, lngJP: 140.3,
@@ -739,7 +737,7 @@ const dragonFullPairs = [
     wikiW: "https://ja.wikipedia.org/wiki/黄河",
     zoomJP: 8, zoomW: 5
   },
-  // (14) 付随する対応（佐渡島）
+  // (14) 佐渡島（付随する対応）
   {
     nameJP: "佐渡島",
     latJP: 38.0, lngJP: 138.4,
@@ -759,7 +757,7 @@ const dragonFullPairs = [
     wikiW: "https://ja.wikipedia.org/wiki/マレー半島",
     zoomJP: 8, zoomW: 5
   },
-  // (16) 龍の左手・龍の玉（能登半島/珠洲）
+  // (16) 龍の左手・龍の玉（能登半島）
   {
     nameJP: "龍の左手・龍の玉（能登半島/珠洲）",
     latJP: 37.4, lngJP: 137.3,
@@ -871,30 +869,31 @@ const dragonFullPairs = [
   }
 ];
 
-// マーカー配列＆DOM
-const dragonJPMarkers = [];
+// ▼ 龍体ツアー用マーカー
+const dragonJPMarkers = []; 
 const dragonWMarkers = [];
+// ▼ 世界側マーカーのDOM（点滅用）
 const dragonWMarkerElems = {};
 
-// マーカー生成
+// ▼ マーカー生成
 dragonFullPairs.forEach((pair, i) => {
-  // 日本マーカー（緑色）
+  // 日本（緑アイコン）
   const jpMarker = L.marker([pair.latJP, pair.lngJP], { icon: greenIcon }).addTo(map);
   jpMarker.bindPopup(`
     <b>${pair.nameJP} → ${pair.nameW}</b><br>
-    <a href="${pair.wikiJP}" target="_blank">[ ${pair.nameJP}のWiki ]</a><br>
-    <a href="${pair.wikiW}" target="_blank">[ ${pair.nameW}のWiki ]</a>
+    <a href="${pair.wikiJP}" target="_blank">[${pair.nameJP}のWiki]</a><br>
+    <a href="${pair.wikiW}" target="_blank">[${pair.nameW}のWiki]</a>
     <hr style="margin:6px 0">
     <button onclick="moveDragonToWorld(${i})">世界の対応地へ</button>
   `);
   dragonJPMarkers.push(jpMarker);
 
-  // 世界マーカー（緑色）
+  // 世界（緑アイコン）
   const wMarker = L.marker([pair.latW, pair.lngW], { icon: greenIcon }).addTo(map);
   wMarker.bindPopup(`
     <b>${pair.nameW} → ${pair.nameJP}</b><br>
-    <a href="${pair.wikiW}" target="_blank">[ ${pair.nameW}のWiki ]</a><br>
-    <a href="${pair.wikiJP}" target="_blank">[ ${pair.nameJP}のWiki ]</a>
+    <a href="${pair.wikiW}" target="_blank">[${pair.nameW}のWiki]</a><br>
+    <a href="${pair.wikiJP}" target="_blank">[${pair.nameJP}のWiki]</a>
     <hr style="margin:6px 0">
     <button onclick="moveDragonToJapan(${i})">日本(龍体)へ戻る</button>
   `);
@@ -905,8 +904,9 @@ dragonFullPairs.forEach((pair, i) => {
   });
 });
 
-// 龍体ツアー移動
+// ▼ 龍体ツアー 移動（手動クリック用）
 function moveDragonToWorld(i) {
+  // （手動で対応地に飛ぶ）
   const p = dragonFullPairs[i];
   map.flyTo([p.latW, p.lngW], p.zoomW);
   setTimeout(() => {
@@ -915,6 +915,7 @@ function moveDragonToWorld(i) {
   }, 1000);
 }
 function moveDragonToJapan(i) {
+  // （手動で日本に戻る）
   const p = dragonFullPairs[i];
   map.flyTo([p.latJP, p.lngJP], p.zoomJP || 7);
   setTimeout(() => {
@@ -922,6 +923,8 @@ function moveDragonToJapan(i) {
     removeAllDragonBlinks();
   }, 1000);
 }
+
+// ▼ 点滅
 function blinkDragonWorldMarker(i) {
   removeAllDragonBlinks();
   if (!dragonWMarkerElems[i]) return;
@@ -938,11 +941,13 @@ function removeAllDragonPopups() {
   dragonWMarkers.forEach(m => m.closePopup());
 }
 
-// 龍体ツアー 自動巡回
+////////////////////////////////////////////////////////////////////////////////
+// 龍体ツアー 自動巡回 - 日本側のみ移動
+////////////////////////////////////////////////////////////////////////////////
 let dragonTourTimer = null;
 let dragonTourIndex = 0;
-let dragonGoingToWorld = true;
 
+/** 龍体ツアー開始 (日本側のみ巡回) */
 function startDragonTour() {
   // 他ツアー停止
   stopAutoTour();
@@ -952,28 +957,28 @@ function startDragonTour() {
   document.getElementById("dragon-stop-btn").style.display = "inline-block";
 
   dragonTourIndex = 0;
-  dragonGoingToWorld = true;
   dragonTourNext();
 }
+
 function dragonTourNext() {
   if (dragonTourIndex >= dragonFullPairs.length) {
     dragonTourIndex = 0;
   }
-  if (dragonGoingToWorld) {
-    moveDragonToWorld(dragonTourIndex);
+  const p = dragonFullPairs[dragonTourIndex];
+  // ⇒ 日本側だけ飛ぶ
+  map.flyTo([p.latJP, p.lngJP], p.zoomJP || 7);
+
+  // 2秒後にポップアップ → 4秒後に次へ
+  setTimeout(() => {
+    dragonJPMarkers[dragonTourIndex].openPopup();
     dragonTourTimer = setTimeout(() => {
-      dragonGoingToWorld = false;
-      dragonTourNext();
-    }, 4000);
-  } else {
-    moveDragonToJapan(dragonTourIndex);
-    dragonTourTimer = setTimeout(() => {
-      dragonGoingToWorld = true;
+      // 次の場所へ
       dragonTourIndex++;
       dragonTourNext();
     }, 4000);
-  }
+  }, 2000);
 }
+
 function stopDragonTour() {
   if (dragonTourTimer) {
     clearTimeout(dragonTourTimer);
